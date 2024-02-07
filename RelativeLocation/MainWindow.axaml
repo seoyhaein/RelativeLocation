@@ -1,0 +1,23 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="RelativeLocation.MainWindow"
+        xmlns:controls="using:RelativeLocation"
+        Title="RelativeLocation">
+    <!--<Canvas Background="Chocolate">
+        <Border Background="Aqua" Padding="0,0,20,20">
+            <controls:Connection Source="20,20" Target="300,300" />
+        </Border>
+        ~1~내부에는 TemplateLayoutCanvas 이 적용됨. @1@
+        <controls:PendingConnection SourceAnchor="20,20" TargetAnchor="200,200" />
+    </Canvas>-->
+    
+    <Canvas>
+        <!--<controls:OutConnector Canvas.Left="20" Canvas.Top="20" />
+        <controls:InConnector Canvas.Left="100" Canvas.Top="100" />-->
+        
+        <controls:Node Canvas.Left="20" Canvas.Top="20" /> 
+    </Canvas>
+</Window>

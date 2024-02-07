@@ -1,0 +1,76 @@
+#1
+<Grid>
+        <!-- 노드의 전체 컨테이너 -->
+        <!--w / h 는 일단 이렇게 정해 놓는다.-->
+        <!--양쪽 부분은 전체 사이즈의 1/15 w 사이즈로 한다.-->
+        <Border Width="200" Height="100" 
+                Background="#1c1b2b"
+                CornerRadius="2"
+                BorderBrush="#1c1b2b"
+                BorderThickness="1">
+            <Grid>
+                <!-- 좌우 구획을 위한 컬럼 정의 -->
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="13*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+                <!-- 일단 값은 직접 넣는다. 향후 따로 뺀다. -->
+                <!-- 구획 사이의 구분선 -->
+                <Rectangle Grid.Column="1" Fill="#222435" />
+
+                <!-- 왼쪽 구획 -->
+                <Rectangle Grid.Column="0" Fill="#6865AD"/>
+                <!--<StackPanel Grid.Column="0">
+                                <TextBlock Text="Left Node" Foreground="WhiteSmoke" Margin="5" />
+                                ~1~ 왼쪽 포트들을 추가할 수 있음 @1@
+                            </StackPanel>-->
+
+                <!-- 오른쪽 구획 -->
+                <Rectangle Grid.Column="2" Fill="#41416A"/>
+                <!--<StackPanel Grid.Column="2">
+                                <TextBlock Text="Right Node" Foreground="WhiteSmoke" Margin="5"/>
+                                ~1~ 오른쪽 포트들을 추가할 수 있음 @1@
+                            </StackPanel>-->
+            </Grid>
+        </Border>
+    </Grid>
+    
+    #2
+    
+     <Grid>
+                        <!-- 노드의 전체 컨테이너 -->
+                        <!--w / h 는 일단 이렇게 정해 놓는다.-->
+                        <!--양쪽 부분은 전체 사이즈의 1/15 w 사이즈로 한다.-->
+                        <Border Width="200" Height="100" 
+                                Background="#1c1b2b"
+                                CornerRadius="2"
+                                BorderBrush="#1c1b2b"
+                                BorderThickness="1">
+                            <Grid>
+                                <!-- 좌우 구획을 위한 컬럼 정의 -->
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="13*" />
+                                    <ColumnDefinition Width="1*" />
+                                </Grid.ColumnDefinitions>
+                                <!-- 일단 값은 직접 넣는다. 향후 따로 뺀다. -->
+                                <!-- 구획 사이의 구분선 -->
+                                <Rectangle Grid.Column="1" Fill="Black" />
+    
+                                <!-- 왼쪽 구획 -->
+                                <Rectangle Grid.Column="0" Fill="#4d4d4d"/>
+                                <!--<StackPanel Grid.Column="0">
+                                    <TextBlock Text="Left Node" Foreground="WhiteSmoke" Margin="5" />
+                                    ~1~ 왼쪽 포트들을 추가할 수 있음 @1@
+                                </StackPanel>-->
+    
+                                <!-- 오른쪽 구획 -->
+                                <Rectangle Grid.Column="2" Fill="#2e2e2e"/>
+                                <!--<StackPanel Grid.Column="2">
+                                    <TextBlock Text="Right Node" Foreground="WhiteSmoke" Margin="5"/>
+                                    ~1~ 오른쪽 포트들을 추가할 수 있음 @1@
+                                </StackPanel>-->
+                            </Grid>
+                        </Border>
+                    </Grid>
