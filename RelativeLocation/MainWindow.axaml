@@ -14,10 +14,10 @@
         <controls:PendingConnection SourceAnchor="20,20" TargetAnchor="200,200" />
     </Canvas>-->
     
-    <Canvas>
+    <controls:TemplateLayoutCanvas>
         <!--<controls:OutConnector Canvas.Left="20" Canvas.Top="20" />
         <controls:InConnector Canvas.Left="100" Canvas.Top="100" />-->
         
-        <controls:Node Canvas.Left="20" Canvas.Top="20" /> 
-    </Canvas>
+        <controls:Node Location="20,20" /> 
+    </controls:TemplateLayoutCanvas>
 </Window>

@@ -13,7 +13,7 @@ public class BaseNode : ContentControl, IDisposable, ILocatable
     #region Dependency Properties
 
     public static readonly StyledProperty<Point> LocationProperty =
-        AvaloniaProperty.Register<BaseNode, Point>(nameof(Location), default);
+        AvaloniaProperty.Register<BaseNode, Point>(nameof(Location), new Point(0, 0));
 
     public Point Location
     {
@@ -23,16 +23,22 @@ public class BaseNode : ContentControl, IDisposable, ILocatable
 
     #endregion
 
-
     #region fields
 
     private readonly CompositeDisposable _disposables = new CompositeDisposable();
+    protected Control? ParentControl;
+    protected bool IsDragging = false;
+
+    // Pointer location
+    protected Point InitialPointerPosition;
+    protected Point PreviousPointerPosition;
+    protected Point CurrentPointerPosition;
 
     #endregion
 
     #region Constructor
 
-    public BaseNode()
+    protected BaseNode()
     {
         InitializeSubscriptions();
     }
@@ -80,7 +86,7 @@ public class BaseNode : ContentControl, IDisposable, ILocatable
 
     public void Dispose()
     {
-        _disposables?.Dispose();
+        _disposables.Dispose();
     }
 
     #endregion
