@@ -5,6 +5,7 @@
       <map>
         <entry key="RelativeLocation/App.axaml" value="RelativeLocation/RelativeLocation.csproj" />
         <entry key="RelativeLocation/Connector.axaml" value="RelativeLocation/RelativeLocation.csproj" />
+        <entry key="RelativeLocation/DAGlynEditor.axaml" value="RelativeLocation/RelativeLocation.csproj" />
         <entry key="RelativeLocation/MainWindow.axaml" value="RelativeLocation/RelativeLocation.csproj" />
         <entry key="RelativeLocation/Node.axaml" value="RelativeLocation/RelativeLocation.csproj" />
         <entry key="RelativeLocation/PendingConnection.axaml" value="RelativeLocation/RelativeLocation.csproj" />

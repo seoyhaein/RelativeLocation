@@ -9,5 +9,6 @@
         <StyleInclude Source="Connector.axaml"/>
         <StyleInclude Source="Node.axaml"/>
         <StyleInclude Source="PendingConnection.axaml"/>
+        <StyleInclude Source="DAGlynEditor.axaml"/>
     </Application.Styles>
 </Application>

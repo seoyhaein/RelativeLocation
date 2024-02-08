@@ -86,7 +86,24 @@ public class BaseNode : ContentControl, IDisposable, ILocatable
 
     public void Dispose()
     {
-        _disposables.Dispose();
+        Dispose(true);
+        GC.SuppressFinalize(this); // 종료자 호출 억제
+    }
+    
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            // 관리되는 자원 해제
+            _disposables.Dispose();
+        }
+        // 관리되지 않는 자원 해제 코드가 필요한 경우 여기에 추가
+    }
+
+    // 종료자
+    ~BaseNode()
+    {
+        Dispose(false);
     }
 
     #endregion

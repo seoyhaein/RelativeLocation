@@ -31,6 +31,8 @@ public class OutConnector : Connector
 
     #endregion
 
+    #region Evnet Handlers
+
     protected override void HandlePointerPressed(object? sender, PointerPressedEventArgs args)
     {
         if (!args.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
@@ -141,4 +143,7 @@ public class OutConnector : Connector
             }
         }
     }
+
+    #endregion
+    
 }

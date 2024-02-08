@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
@@ -7,17 +6,17 @@ using System;
 
 namespace RelativeLocation
 {
-    public class PendingConnection : ContentControl, IDisposable
+    public sealed class PendingConnection : ContentControl, IDisposable
     {
         #region Dependency Properties
 
         // 연결의 시작점
         public static readonly StyledProperty<Point> SourceAnchorProperty =
-            AvaloniaProperty.Register<PendingConnection, Point>(nameof(SourceAnchor), default(Point));
+            AvaloniaProperty.Register<PendingConnection, Point>(nameof(SourceAnchor));
 
         // 연결의 끝점
         public static readonly StyledProperty<Point> TargetAnchorProperty =
-            AvaloniaProperty.Register<PendingConnection, Point>(nameof(TargetAnchor), default(Point));
+            AvaloniaProperty.Register<PendingConnection, Point>(nameof(TargetAnchor));
 
         // 연결 시작의 Connector
         public static readonly StyledProperty<object?> SourceConnectorProperty =
@@ -29,7 +28,7 @@ namespace RelativeLocation
 
         // 미리보기 활성화 여부 정의
         public static readonly StyledProperty<bool> EnablePreviewProperty =
-            AvaloniaProperty.Register<PendingConnection, bool>(nameof(EnablePreview), false);
+            AvaloniaProperty.Register<PendingConnection, bool>(nameof(EnablePreview));
 
         // 미리보기 대상 객체 정의
         public static readonly StyledProperty<object?> PreviewTargetProperty =
@@ -39,20 +38,10 @@ namespace RelativeLocation
         // https://docs.avaloniaui.net/docs/guides/custom-controls/defining-properties
         public static readonly StyledProperty<double> StrokeThicknessProperty =
             Shape.StrokeThicknessProperty.AddOwner<PendingConnection>();
-
         
-        // 커넥터만 허용 여부 정의.
-        // TODO 확인한다.
-        /*public static readonly DependencyProperty AllowOnlyConnectorsProperty =
-            DependencyProperty.Register(nameof(AllowOnlyConnectors), typeof(bool), typeof(PendingConnection),
-                new FrameworkPropertyMetadata(BoxValue.True, OnAllowOnlyConnectorsChanged));*/
-
-        public static readonly StyledProperty<bool> AllowOnlyConnectorsProperty =
-            AvaloniaProperty.Register<PendingConnection, bool>(nameof(AllowOnlyConnectors), true);
-
         // 스냅핑 활성화 여부 정의
         public static readonly StyledProperty<bool> EnableSnappingProperty =
-            AvaloniaProperty.Register<PendingConnection, bool>(nameof(EnableSnapping), false);
+            AvaloniaProperty.Register<PendingConnection, bool>(nameof(EnableSnapping));
 
         // 연결 방향 정의.
         public static readonly StyledProperty<ConnectionDirection> DirectionProperty =
@@ -107,13 +96,7 @@ namespace RelativeLocation
             get => GetValue(EnableSnappingProperty);
             set => SetValue(EnableSnappingProperty, value);
         }
-
-        public bool AllowOnlyConnectors
-        {
-            get => GetValue(AllowOnlyConnectorsProperty);
-            set => SetValue(AllowOnlyConnectorsProperty, value);
-        }
-
+        
         public double StrokeThickness
         {
             get => GetValue(StrokeThicknessProperty);
@@ -136,16 +119,13 @@ namespace RelativeLocation
         
         #region Fields
         
-        private IDisposable? _fillAndStrokeSubscription;
+        private readonly IDisposable _fillAndStrokeSubscription;
 
         #endregion
         
+        #region Constructors
         public PendingConnection()
         {
-            // TODO 어떤 것이 더 나은지 살펴보자.
-            // GetPropertyChangedObservable(AllowOnlyConnectorsProperty).Subscribe(OnAllowOnlyConnectorsChanged);
-            AllowOnlyConnectorsProperty.Changed.Subscribe(OnAllowOnlyConnectorsChanged);
-            
             _fillAndStrokeSubscription = SetFillAndStrokeProperty.Changed.Subscribe(value =>
             {
                 if (value.Sender is Connection connection)
@@ -156,20 +136,22 @@ namespace RelativeLocation
                 }
             });
             
-            // TODO axaml 에서 생성한 경우 Dispose 할 수 없는데 이렇게 하면 될까?
+            // TODO axaml 에서 사용시 Dispose 하는 방법에 대해서 생각해보기.
             this.Unloaded += (sender, e) => this.Dispose();
         }
         
-        private static void OnAllowOnlyConnectorsChanged(AvaloniaPropertyChangedEventArgs e)
-        {
-            // 속성이 변경될 때 실행할 코드
-            Debug.WriteLine("Hello world");
-        }
-        
-        // TODO axaml 에서 사용시 Dispose 하는 방법에 대해서 생각해보기.
+        #endregion
+
+        #region Methods
+
         public void Dispose()
         {
-            _fillAndStrokeSubscription?.Dispose();
+            // 관리되는 자원 해제
+            _fillAndStrokeSubscription.Dispose();
+            // 관리되지 않는 자원 해제 코드가 필요한 경우 여기에 추가
+            GC.SuppressFinalize(this); // 종료자 호출 억제
         }
+
+        #endregion
     }
 }

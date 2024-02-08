@@ -1,11 +1,18 @@
 using Avalonia;
+using System;
 using Avalonia.Controls;
+using Avalonia.Reactive;
 using Avalonia.VisualTree;
 
 namespace RelativeLocation;
 
 public static class Extension
 {
+    // Subscribe 를 static 에서 사용하기 위해서
+    public static IDisposable Subscribe<T>(this IObservable<T> observable, Action<T> action)
+    {
+        return observable.Subscribe(new AnonymousObserver<T>(action));
+    }
     public static T? GetParentControlOfType<T>(this Control child) where T : Control
     {
         var current = child;

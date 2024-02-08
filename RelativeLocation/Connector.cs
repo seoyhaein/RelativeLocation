@@ -15,7 +15,7 @@ public class Connector : TemplatedControl, IDisposable
     public Connector()
     {
         InitializeSubscriptions();
-        
+
         // TODO axaml 에서 생성한 경우 Dispose 할 수 없는데 이렇게 하면 될까?
         this.Unloaded += (sender, e) => this.Dispose();
     }
@@ -62,7 +62,7 @@ public class Connector : TemplatedControl, IDisposable
     #endregion
 
     #region Fields & Dependency Properties
-    
+
     // TODO Anchor 가 필요한지 일단 모르겠지만 넣어둠.
     public static readonly StyledProperty<Point> AnchorProperty =
         AvaloniaProperty.Register<Connector, Point>(nameof(Anchor));
@@ -78,6 +78,8 @@ public class Connector : TemplatedControl, IDisposable
     protected Connector? PreviousConnector;
 
     #endregion
+
+    #region Methods
 
     private void InitializeSubscriptions()
     {
@@ -100,9 +102,17 @@ public class Connector : TemplatedControl, IDisposable
             .DisposeWith(_disposables);
     }
 
-    protected virtual void HandlePointerPressed(object? sender, PointerPressedEventArgs args) { }
-    protected virtual void HandlePointerMoved(object? sender, PointerEventArgs args) { }
-    protected virtual void HandlePointerReleased(object? sender, PointerReleasedEventArgs args) { }
+    protected virtual void HandlePointerPressed(object? sender, PointerPressedEventArgs args)
+    {
+    }
+
+    protected virtual void HandlePointerMoved(object? sender, PointerEventArgs args)
+    {
+    }
+
+    protected virtual void HandlePointerReleased(object? sender, PointerReleasedEventArgs args)
+    {
+    }
 
     // DataContext 는 살펴보자.
     /*private void StartedRaiseEvent(object? sender)
@@ -144,6 +154,25 @@ public class Connector : TemplatedControl, IDisposable
 
     public void Dispose()
     {
-        _disposables?.Dispose();
+        Dispose(true);
+        GC.SuppressFinalize(this); // 종료자 호출 억제
     }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            // 관리되는 자원 해제
+            _disposables.Dispose();
+        }
+        // 관리되지 않는 자원 해제 코드가 필요한 경우 여기에 추가
+    }
+
+    // 종료자
+    ~Connector()
+    {
+        Dispose(false);
+    }
+
+    #endregion
 }

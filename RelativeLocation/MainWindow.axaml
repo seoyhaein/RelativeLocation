@@ -13,11 +13,17 @@
         ~1~내부에는 TemplateLayoutCanvas 이 적용됨. @1@
         <controls:PendingConnection SourceAnchor="20,20" TargetAnchor="200,200" />
     </Canvas>-->
-    
+    <!--
     <controls:TemplateLayoutCanvas>
+    -->
         <!--<controls:OutConnector Canvas.Left="20" Canvas.Top="20" />
         <controls:InConnector Canvas.Left="100" Canvas.Top="100" />-->
-        
+      <!--  
         <controls:Node Location="20,20" /> 
     </controls:TemplateLayoutCanvas>
+    -->
+    <Grid>
+        <!--Canvas 수정해야 함.-->
+        <controls:DAGlynEditor />
+    </Grid>
 </Window>
