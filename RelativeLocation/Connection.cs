@@ -73,7 +73,7 @@ namespace RelativeLocation
         /// </summary>
         None
     }
-    
+
     public class Connection : Shape
     {
         #region feilds
@@ -83,22 +83,22 @@ namespace RelativeLocation
         private const double Degrees = Math.PI / 180.0d;
         private static readonly Size DefaultArrowSize = new Size(7, 6);
         private static readonly Vector ZeroVector = new(0d, 0d);
-        
+
         #endregion
 
         #region Dependency Properties
 
         public static readonly StyledProperty<Point> SourceProperty =
-            AvaloniaProperty.Register<Connection, Point>(nameof(Source), default(Point));
+            AvaloniaProperty.Register<Connection, Point>(nameof(Source));
 
         public static readonly StyledProperty<Point> TargetProperty =
-            AvaloniaProperty.Register<Connection, Point>(nameof(Target), default(Point));
+            AvaloniaProperty.Register<Connection, Point>(nameof(Target));
 
         public static readonly StyledProperty<Size> SourceOffsetProperty =
-            AvaloniaProperty.Register<Connection, Size>(nameof(SourceOffset), default(Size));
+            AvaloniaProperty.Register<Connection, Size>(nameof(SourceOffset));
 
         public static readonly StyledProperty<Size> TargetOffsetProperty =
-            AvaloniaProperty.Register<Connection, Size>(nameof(TargetOffset), default(Size));
+            AvaloniaProperty.Register<Connection, Size>(nameof(TargetOffset));
 
         public static readonly StyledProperty<ConnectionOffsetMode> OffsetModeProperty =
             AvaloniaProperty.Register<Connection, ConnectionOffsetMode>(nameof(OffsetMode), ConnectionOffsetMode.None);
@@ -115,13 +115,12 @@ namespace RelativeLocation
         public static readonly StyledProperty<Size> ArrowSizeProperty =
             AvaloniaProperty.Register<Connection, Size>(nameof(ArrowSize), defaultValue: DefaultArrowSize);
 
-        // 추가.
         public static readonly StyledProperty<LineShape> LineShapeModeProperty =
             AvaloniaProperty.Register<Connection, LineShape>(nameof(LineShapeMode), LineShape.Line);
 
         public static readonly StyledProperty<double> AngleProperty =
             AvaloniaProperty.Register<Connection, double>(nameof(Angle), 45d);
-        
+
         public double Angle
         {
             get => GetValue(AngleProperty);
@@ -187,7 +186,7 @@ namespace RelativeLocation
             get => GetValue(ArrowSizeProperty);
             set => SetValue(ArrowSizeProperty, value);
         }
-        
+
         #endregion
 
         #region Constructors
@@ -214,7 +213,7 @@ namespace RelativeLocation
                 LineShapeModeProperty
             );
         }
-        
+
         #endregion
 
         protected override Geometry CreateDefiningGeometry()

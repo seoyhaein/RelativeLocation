@@ -12,7 +12,7 @@ public class Connector : TemplatedControl, IDisposable
 {
     #region Constructor
 
-    public Connector()
+    protected Connector()
     {
         InitializeSubscriptions();
 
@@ -79,7 +79,7 @@ public class Connector : TemplatedControl, IDisposable
 
     #endregion
 
-    #region Methods
+    #region Event Handlers
 
     private void InitializeSubscriptions()
     {
@@ -151,6 +151,10 @@ public class Connector : TemplatedControl, IDisposable
         };
         RaiseEvent(args);
     }*/
+
+    #endregion
+
+    #region Methods
 
     public void Dispose()
     {

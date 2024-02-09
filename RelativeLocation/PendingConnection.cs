@@ -38,7 +38,7 @@ namespace RelativeLocation
         // https://docs.avaloniaui.net/docs/guides/custom-controls/defining-properties
         public static readonly StyledProperty<double> StrokeThicknessProperty =
             Shape.StrokeThicknessProperty.AddOwner<PendingConnection>();
-        
+
         // 스냅핑 활성화 여부 정의
         public static readonly StyledProperty<bool> EnableSnappingProperty =
             AvaloniaProperty.Register<PendingConnection, bool>(nameof(EnableSnapping));
@@ -46,7 +46,7 @@ namespace RelativeLocation
         // 연결 방향 정의.
         public static readonly StyledProperty<ConnectionDirection> DirectionProperty =
             Connection.DirectionProperty.AddOwner<PendingConnection>();
-        
+
         // Fill 과 Stroke 를 동시 설정
         public static readonly StyledProperty<IBrush?> SetFillAndStrokeProperty =
             AvaloniaProperty.Register<PendingConnection, IBrush?>(nameof(SetFillAndStroke), defaultValue: null);
@@ -96,19 +96,19 @@ namespace RelativeLocation
             get => GetValue(EnableSnappingProperty);
             set => SetValue(EnableSnappingProperty, value);
         }
-        
+
         public double StrokeThickness
         {
             get => GetValue(StrokeThicknessProperty);
             set => SetValue(StrokeThicknessProperty, value);
         }
-        
+
         public ConnectionDirection Direction
         {
             get => GetValue(DirectionProperty);
             set => SetValue(DirectionProperty, value);
         }
-        
+
         public IBrush? SetFillAndStroke
         {
             get => GetValue(SetFillAndStrokeProperty);
@@ -116,14 +116,15 @@ namespace RelativeLocation
         }
 
         #endregion
-        
+
         #region Fields
-        
+
         private readonly IDisposable _fillAndStrokeSubscription;
 
         #endregion
-        
+
         #region Constructors
+
         public PendingConnection()
         {
             _fillAndStrokeSubscription = SetFillAndStrokeProperty.Changed.Subscribe(value =>
@@ -131,15 +132,15 @@ namespace RelativeLocation
                 if (value.Sender is Connection connection)
                 {
                     var brush = value.GetNewValue<IBrush?>(); // value.NewValue 대신 GetNewValue<IBrush?>() 사용
-                    connection.Fill = brush; 
+                    connection.Fill = brush;
                     connection.Stroke = brush;
                 }
             });
-            
+
             // TODO axaml 에서 사용시 Dispose 하는 방법에 대해서 생각해보기.
             this.Unloaded += (sender, e) => this.Dispose();
         }
-        
+
         #endregion
 
         #region Methods
@@ -148,8 +149,6 @@ namespace RelativeLocation
         {
             // 관리되는 자원 해제
             _fillAndStrokeSubscription.Dispose();
-            // 관리되지 않는 자원 해제 코드가 필요한 경우 여기에 추가
-            GC.SuppressFinalize(this); // 종료자 호출 억제
         }
 
         #endregion

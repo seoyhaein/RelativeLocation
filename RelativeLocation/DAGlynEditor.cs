@@ -17,6 +17,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         #region Dependency Properties
         
         // TODO 이게 필요한지 살펴보자.
+        // Canvas 에서 적용했다. 
         public static readonly StyledProperty<Point> ViewportLocationProperty =
             AvaloniaProperty.Register<DAGlynEditor, Point>(nameof(ViewportLocation));
 
@@ -51,6 +52,8 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
             set => SetValue(DisablePanningProperty, value);
         }
         
+        // TODO 이부분은 Canvas 에서 구현했는데 DirectProperty 를 사용하지는 않았다. 
+        // DirectProperty 관련하여 자료조사 및 비교를 해봐야 한다.
         public static readonly DirectProperty<DAGlynEditor, bool> IsPanningProperty =
             AvaloniaProperty.RegisterDirect<DAGlynEditor, bool>(
                 nameof(IsPanning),

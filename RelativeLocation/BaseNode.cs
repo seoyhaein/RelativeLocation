@@ -83,7 +83,8 @@ public class BaseNode : ContentControl, IDisposable, ILocatable
     #endregion
 
     #region methods
-
+    
+    //TODO Dispose 관련해서 테스트 해봐야 함.
     public void Dispose()
     {
         Dispose(true);

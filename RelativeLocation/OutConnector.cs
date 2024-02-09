@@ -10,8 +10,14 @@ namespace RelativeLocation;
  * 
  */
 
+/// <summary>
+/// HandlePointerMoved
+/// 지금 Canvas 로 잡았는데, 이부분은 수정해야함.
+/// 공통된 부분 깔끔하게 정리해야함. 
+/// </summary>
+
 // TODO 코드 정리 필요. 
-public class OutConnector : Connector
+public sealed class OutConnector : Connector
 {
     protected override Type StyleKeyOverride => typeof(Connector);
 
@@ -19,6 +25,9 @@ public class OutConnector : Connector
 
     static OutConnector()
     {
+        // TODO 향후 이거 주석처리한다.
+        // UI 바꿀때, Background 속성 변경.
+        //BackgroundProperty.OverrideDefaultValue<OutConnector>(new SolidColorBrush(Color.Parse("#4d4d4d")));
         FocusableProperty.OverrideDefaultValue<OutConnector>(true);
     }
 
@@ -103,7 +112,6 @@ public class OutConnector : Connector
                 Debug.Print("다른 Connector 에 들어 갔다가 다시 자신으로 돌아온 경우");
         }
         
-        // TODO 이거 필요한지 생각하자.
         args.Handled = true;
     }
 

@@ -11,6 +11,11 @@ namespace RelativeLocation;
  * Location 이 최종적으로 변할때 이것을 기록하고 UI 변경사항을 남겨야 한다.
  */
 
+/// <summary>
+/// 속성 변경에 따른 메서드로 처리하는게 나을지 고민해야함. DAGlynEditorCanvas 와 비교해봐야 함.
+/// 중복되는 기능들은 통합할 필요 있음.
+/// </summary>
+
 public class Node : BaseNode
 {
     #region fields
@@ -18,8 +23,7 @@ public class Node : BaseNode
     // Node 의 움직임을 위해
     // TODO 추후 BaseNode 로 이동하는 것 생각
     private TranslateTransform _translateTransform = new TranslateTransform();
-    private double _handleLeftClickThreshold = 12d; // 제곱 거리를 위한 임계값 설정
-
+    
     #endregion
     
     #region Constructor
@@ -59,7 +63,7 @@ public class Node : BaseNode
         var delta = CurrentPointerPosition - PreviousPointerPosition;
 
         // 드래그 임계값 검사
-        if (((Vector)delta).SquaredLength  > _handleLeftClickThreshold)
+        if (((Vector)delta).SquaredLength  > Constants.AppliedThreshold)
         {
             SetLocation(this.Location + delta); // SetLocation 메소드를 통한 위치 업데이트
             PreviousPointerPosition = CurrentPointerPosition;

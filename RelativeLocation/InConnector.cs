@@ -14,9 +14,17 @@ namespace RelativeLocation;
  * 
  */
 
-public class InConnector : Connector
+public sealed class InConnector : Connector
 {
     protected override Type StyleKeyOverride => typeof(Connector);
+    
+    static InConnector()
+    {
+        // TODO 향후 이거 주석처리한다.
+        // UI 바꿀때, Background 속성 변경.
+        //BackgroundProperty.OverrideDefaultValue<InConnector>(new SolidColorBrush(Color.Parse("#4d4d4d")));
+        FocusableProperty.OverrideDefaultValue<InConnector>(true);
+    }
     
     private void HandleStarted(object? sender, PendingConnectionEventArgs e)
     {
