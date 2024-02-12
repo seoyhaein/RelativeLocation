@@ -20,13 +20,15 @@ public class BaseNode : ContentControl, IDisposable, ILocatable
         get => GetValue(LocationProperty);
         set => SetValue(LocationProperty, value);
     }
-
+    
     #endregion
 
     #region Fields
 
     private readonly CompositeDisposable _disposables = new CompositeDisposable();
-    protected Control? ParentControl;
+    
+    // ParentControl 이 없으면, Node 가 움직일 수 없으므로 이것을 확인하는 루틴이 필요하다.
+    //protected Control? ParentControl;
     protected bool IsDragging = false;
 
     // Pointer location

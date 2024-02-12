@@ -2,6 +2,5 @@ namespace RelativeLocation;
 
 public static class Constants
 {
-    public const double ClickThreshold = 12d;
-    public const double AppliedThreshold = ClickThreshold * ClickThreshold;
+    public const double AppliedThreshold = 12d * 12d;
 }

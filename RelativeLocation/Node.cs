@@ -1,5 +1,7 @@
+using System;
 using System.Diagnostics;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Media;
@@ -19,6 +21,18 @@ namespace RelativeLocation;
 
 public class Node : BaseNode
 {
+    #region Dependency Properties
+    
+    public static readonly StyledProperty<Control?> ParentControlProperty =
+        AvaloniaProperty.Register<BaseNode, Control?>(nameof(ParentControl));
+
+    public Control? ParentControl
+    {
+        get => GetValue(ParentControlProperty);
+        set => SetValue(ParentControlProperty, value);
+    }
+    #endregion
+    
     #region fields
     
     // Node 의 움직임을 위해
@@ -32,6 +46,12 @@ public class Node : BaseNode
     {
         // 초기 설정에서 TranslateTransform 객체를 RenderTransform으로 설정
         this.RenderTransform = _translateTransform;
+        ParentControlProperty.Changed.Subscribe(OnParentControlProperty);
+    }
+
+    public Node(Point location) : this()
+    {
+        this.Location = location;
     }
 
     #endregion
@@ -40,8 +60,11 @@ public class Node : BaseNode
 
     protected override void HandlePointerPressed(object? sender, PointerPressedEventArgs args)
     {
+        if(this.ParentControl == null)
+            throw new InvalidOperationException("Node cannot move because a DAGlynEditorCanvas parent is not found.");
+        
         // 불필요한 조건 검사 제거
-        if (args.GetCurrentPoint(this).Properties.IsLeftButtonPressed && sender != null && this.ParentControl != null)
+        if (args.GetCurrentPoint(this).Properties.IsLeftButtonPressed && sender != null)
         {
             Focus();
             args.Pointer.Capture(this);
@@ -56,7 +79,10 @@ public class Node : BaseNode
 
     protected override void HandlePointerMoved(object? sender, PointerEventArgs args)
     {
-        if (sender == null || !this.IsDragging || this.ParentControl == null || !this.Equals(args.Pointer.Captured)) return;
+        if(this.ParentControl == null)
+            throw new InvalidOperationException("Node cannot move because a DAGlynEditorCanvas parent is not found.");
+        
+        if (sender == null || !this.IsDragging || !this.Equals(args.Pointer.Captured)) return;
 
         Debug.Print("Dragging...");
         CurrentPointerPosition = args.GetPosition(ParentControl);
@@ -65,7 +91,7 @@ public class Node : BaseNode
         // 드래그 임계값 검사
         if (((Vector)delta).SquaredLength  > Constants.AppliedThreshold)
         {
-            SetLocation(this.Location + delta); // SetLocation 메소드를 통한 위치 업데이트
+            NodeMove(this.Location + delta); // SetLocation 메소드를 통한 위치 업데이트
             PreviousPointerPosition = CurrentPointerPosition;
             args.Handled = true;
         }
@@ -73,6 +99,9 @@ public class Node : BaseNode
 
     protected override void HandlePointerReleased(object? sender, PointerReleasedEventArgs args)
     {
+        if(this.ParentControl == null)
+            throw new InvalidOperationException("Node cannot move because a DAGlynEditorCanvas parent is not found.");
+        
         if (sender != null && this.Equals(args.Pointer.Captured) && this.IsDragging)
         {
             Debug.Print("Finish");
@@ -81,29 +110,65 @@ public class Node : BaseNode
             args.Handled = true;
         }
     }
+    
+    private void OnParentControlProperty(AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.NewValue is DAGlynEditorCanvas editorCanvas)
+        {
+            this.ParentControl = editorCanvas;
+        }
+        else
+        {
+            var parentControl = this.GetParentVisualOfType<DAGlynEditorCanvas>();
+            if (parentControl != null)
+            {
+                this.ParentControl = parentControl;
+            }
+            else
+            {
+                this.ParentControl = null;
+            }
+        }
+    }
 
     #endregion
     
     #region Methods
 
-    public void SetLocation(Point point)
+    private void NodeMove(Point point)
     {
-
         Location = point;
-        //this.SetValue(LocationProperty, point);
         _translateTransform.X = point.X;
         _translateTransform.Y = point.Y;
     }
 
     #endregion
     
-    /// <inheritdoc />
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    
+    /*protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
         base.OnApplyTemplate(e);
+        
+    }*/
 
-        //TODO 이렇게 찾을 것인지 아니면 FindControl 로 찾을 것인지 생각해봐야 한다.
-        this.ParentControl = this.GetParentVisualOfType<DAGlynEditorCanvas>();
+    public bool CanNodeMove()
+    {
+        var parentControl = this.GetParentVisualOfType<DAGlynEditorCanvas>();
+        if (parentControl != null)
+        {
+            this.ParentControl = parentControl;
+            return true;
+        }
+        else
+        {
+            this.ParentControl = null;
+            return false;
+        }
     }
-    
+
+    public void SetLocation(Point location)
+    {
+        this.Location = location;
+    }
+
 }

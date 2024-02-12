@@ -6,6 +6,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using Avalonia.Collections;
 
 namespace RelativeLocation;
 
@@ -14,7 +15,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     #region Dependency Properties
     
     public static readonly StyledProperty<Point> ViewportLocationProperty =
-        AvaloniaProperty.Register<DAGlynEditor, Point>(nameof(ViewportLocation));
+        AvaloniaProperty.Register<DAGlynEditor, Point>(nameof(ViewportLocation), new Point(0,0));
 
     public Point ViewportLocation
     {
@@ -39,7 +40,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     }
 
     public static readonly StyledProperty<bool> DisablePanningProperty =
-        AvaloniaProperty.Register<DAGlynEditor, bool>(nameof(DisablePanning), false);
+        AvaloniaProperty.Register<DAGlynEditor, bool>(nameof(DisablePanning));
 
     public bool DisablePanning
     {
@@ -61,7 +62,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     }
 
     public static readonly StyledProperty<bool> EnableRealtimeSelectionProperty =
-        AvaloniaProperty.Register<DAGlynEditor, bool>(nameof(EnableRealtimeSelection), false);
+        AvaloniaProperty.Register<DAGlynEditor, bool>(nameof(EnableRealtimeSelection));
 
     public bool EnableRealtimeSelection
     {
@@ -237,6 +238,9 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     {
         new Node()
     };
+    // TODO 이걸로 속성하나 만들어야 할듯하다.
+    // 그리고 여기에 Node 들을 추가하는 메서드들을 만들자.
+    public AvaloniaList<Node> NodeItems { get; set; } = new AvaloniaList<Node>();
 
     #endregion
 }
