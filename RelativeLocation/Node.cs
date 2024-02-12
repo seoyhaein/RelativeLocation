@@ -9,6 +9,7 @@ namespace RelativeLocation;
 /*
  * 새롭게 Reload 할 경우 위치에 대한 변경을 해줘야 한다.
  * Location 이 최종적으로 변할때 이것을 기록하고 UI 변경사항을 남겨야 한다.
+ * InValid~~ Transform 은 시각적인 위치만 변경시킨다. 다시 reload 할 경우 원래대로 돌아온다.
  */
 
 /// <summary>
@@ -21,7 +22,6 @@ public class Node : BaseNode
     #region fields
     
     // Node 의 움직임을 위해
-    // TODO 추후 BaseNode 로 이동하는 것 생각
     private TranslateTransform _translateTransform = new TranslateTransform();
     
     #endregion
@@ -84,23 +84,26 @@ public class Node : BaseNode
 
     #endregion
     
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
-        base.OnApplyTemplate(e);
-
-        //TODO 이렇게 찾을 것인지 아니면 FindControl 로 찾을 것인지 생각해봐야 한다.
-        this.ParentControl = this.GetParentVisualOfType<TemplateLayoutCanvas>();
-    }
-
     #region Methods
 
     public void SetLocation(Point point)
     {
-        this.SetValue(LocationProperty, point);
+
+        Location = point;
+        //this.SetValue(LocationProperty, point);
         _translateTransform.X = point.X;
         _translateTransform.Y = point.Y;
     }
 
     #endregion
+    
+    /// <inheritdoc />
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
+        base.OnApplyTemplate(e);
+
+        //TODO 이렇게 찾을 것인지 아니면 FindControl 로 찾을 것인지 생각해봐야 한다.
+        this.ParentControl = this.GetParentVisualOfType<DAGlynEditorCanvas>();
+    }
     
 }

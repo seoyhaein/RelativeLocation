@@ -23,7 +23,7 @@ public class BaseNode : ContentControl, IDisposable, ILocatable
 
     #endregion
 
-    #region fields
+    #region Fields
 
     private readonly CompositeDisposable _disposables = new CompositeDisposable();
     protected Control? ParentControl;
@@ -36,7 +36,7 @@ public class BaseNode : ContentControl, IDisposable, ILocatable
 
     #endregion
 
-    #region Constructor
+    #region Constructors
 
     protected BaseNode()
     {

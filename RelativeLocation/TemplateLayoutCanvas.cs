@@ -6,6 +6,7 @@ namespace RelativeLocation
 {
     public class TemplateLayoutCanvas : Canvas
     {
+        /// <inheritdoc />
         protected override Size MeasureOverride(Size constraint)
         {
             double maxWidth = 0.0;
@@ -37,7 +38,8 @@ namespace RelativeLocation
 
             return new Size(maxWidth, maxHeight);
         }
-
+        
+        /// <inheritdoc />
         protected override Size ArrangeOverride(Size finalSize)
         {
             foreach (var child in Children)

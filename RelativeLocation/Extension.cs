@@ -8,6 +8,8 @@ namespace RelativeLocation;
 
 public static class Extension
 {
+    #region Static Methods
+    
     // Subscribe 를 static 에서 사용하기 위해서
     public static IDisposable Subscribe<T>(this IObservable<T> observable, Action<T> action)
     {
@@ -57,4 +59,6 @@ public static class Extension
 
         return null;
     }
+    
+    #endregion
 }

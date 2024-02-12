@@ -24,7 +24,8 @@
                     <ItemsPresenter x:Name="PART_ItemsPresenter">
                         <ItemsPresenter.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <controls:DAGlynEditorCanvas x:Name="PART_ItemsHost"/>
+                                <controls:DAGlynEditorCanvas x:Name="PART_ItemsHost" Background="Transparent"  
+                                                             ViewportLocation="{TemplateBinding ViewportLocation}"/>
                             </ItemsPanelTemplate>
                         </ItemsPresenter.ItemsPanel>
                     </ItemsPresenter>

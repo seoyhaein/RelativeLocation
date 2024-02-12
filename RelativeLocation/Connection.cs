@@ -216,43 +216,7 @@ namespace RelativeLocation
 
         #endregion
 
-        protected override Geometry CreateDefiningGeometry()
-        {
-            var geometry = new StreamGeometry();
-            using var context = geometry.Open();
-            context.SetFillRule(FillRule.EvenOdd);
-
-            // 오프셋 계산 및 소스와 타겟 점 업데이트
-            var (sourceOffset, targetOffset) = GetOffset();
-            var source = Source + sourceOffset;
-            var target = Target + targetOffset;
-
-            // 선 그리기
-            DrawLineGeometry(context, source, target);
-
-            // 화살표 그리기 (화살표 크기가 0이 아닌 경우) None, Default 는 생략했음.
-            if (ArrowSize.Width != 0d && ArrowSize.Height != 0d)
-            {
-                switch (ArrowEnds)
-                {
-                    case ArrowHeadEnds.Start:
-                        DrawArrowGeometry(context, source, target, ConnectionDirection.Backward);
-
-                        break;
-                    case ArrowHeadEnds.End:
-                        DrawArrowGeometry(context, source, target, ConnectionDirection.Forward);
-
-                        break;
-                    case ArrowHeadEnds.Both:
-                        DrawArrowGeometry(context, source, target, ConnectionDirection.Forward);
-                        DrawArrowGeometry(context, target, source, ConnectionDirection.Backward);
-
-                        break;
-                }
-            }
-
-            return geometry;
-        }
+        #region Methods
 
         private void DrawLineGeometry(IGeometryContext context, Point source, Point target)
         {
@@ -453,6 +417,47 @@ namespace RelativeLocation
                 var x = 1.0d / Math.Tan(angle) * y;
                 return new Vector(x, y);
             }
+        }
+
+        #endregion
+        
+        /// <inheritdoc />
+        protected override Geometry CreateDefiningGeometry()
+        {
+            var geometry = new StreamGeometry();
+            using var context = geometry.Open();
+            context.SetFillRule(FillRule.EvenOdd);
+
+            // 오프셋 계산 및 소스와 타겟 점 업데이트
+            var (sourceOffset, targetOffset) = GetOffset();
+            var source = Source + sourceOffset;
+            var target = Target + targetOffset;
+
+            // 선 그리기
+            DrawLineGeometry(context, source, target);
+
+            // 화살표 그리기 (화살표 크기가 0이 아닌 경우) None, Default 는 생략했음.
+            if (ArrowSize.Width != 0d && ArrowSize.Height != 0d)
+            {
+                switch (ArrowEnds)
+                {
+                    case ArrowHeadEnds.Start:
+                        DrawArrowGeometry(context, source, target, ConnectionDirection.Backward);
+
+                        break;
+                    case ArrowHeadEnds.End:
+                        DrawArrowGeometry(context, source, target, ConnectionDirection.Forward);
+
+                        break;
+                    case ArrowHeadEnds.Both:
+                        DrawArrowGeometry(context, source, target, ConnectionDirection.Forward);
+                        DrawArrowGeometry(context, target, source, ConnectionDirection.Backward);
+
+                        break;
+                }
+            }
+
+            return geometry;
         }
     }
 }

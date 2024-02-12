@@ -33,7 +33,7 @@ public sealed class OutConnector : Connector
 
     #endregion
 
-    #region Fields & Dependency Properties
+    #region Fields
 
     // Connector 밖으로 한번이라도 나가면 true 가 된다.
     private bool _outSideOutConnector = false;

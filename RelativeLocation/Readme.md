@@ -7,4 +7,8 @@
 - Connector 구현 후 PendingConnection 완성.  
 ~~- Node UI 초기 설계, Node 이동 구현 필요.(NodeEditor 확인)~~  
 - Node 이동 시 최종적인 위치 변경은 위치 변경 후 Invallid~ 호출 그리고 데이터 저장해야 함. 이 구현은 거의 마지막에 이루어 질듯.   
-- Paning 구현 다시 정리하기.(DAGlynEditor 구현 및 정리)    
+~~- Panning 구현 다시 정리하기.(DAGlynEditor 구현 및 정리)~~   
+~~- Panning 관련하여 Canvas 의 사이즈가 고정되서 움직여서 이것에 대한 버그가 발생한다. 이것을 해결해야 한다. ~~  
+- DirectProperty 좀더 연구.
+
+## 코드 정리 순서
