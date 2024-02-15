@@ -2,6 +2,8 @@ using Avalonia.Input;
 using System;
 using System.Diagnostics;
 using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
+using Avalonia.Media;
 
 namespace RelativeLocation;
 
@@ -26,9 +28,10 @@ public sealed class OutConnector : Connector
     static OutConnector()
     {
         // TODO 향후 이거 주석처리한다.
-        // UI 바꿀때, Background 속성 변경.
+        // UI 바꿀때, Background 속성 변경. 그냥 Background 를 받아서 할까 아니면 지금처럼 Fill 을 만들어 줄까????
         //BackgroundProperty.OverrideDefaultValue<OutConnector>(new SolidColorBrush(Color.Parse("#4d4d4d")));
-        FocusableProperty.OverrideDefaultValue<OutConnector>(true);
+        //FocusableProperty.OverrideDefaultValue<OutConnector>(true);
+        FillProperty.OverrideDefaultValue<OutConnector>(new SolidColorBrush(Color.Parse("#2e2e2e")));
     }
 
     #endregion

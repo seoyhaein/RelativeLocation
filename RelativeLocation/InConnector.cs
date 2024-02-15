@@ -6,6 +6,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 
 namespace RelativeLocation;
 
@@ -23,7 +24,8 @@ public sealed class InConnector : Connector
         // TODO 향후 이거 주석처리한다.
         // UI 바꿀때, Background 속성 변경.
         //BackgroundProperty.OverrideDefaultValue<InConnector>(new SolidColorBrush(Color.Parse("#4d4d4d")));
-        FocusableProperty.OverrideDefaultValue<InConnector>(true);
+        //FocusableProperty.OverrideDefaultValue<InConnector>(true);
+        FillProperty.OverrideDefaultValue<OutConnector>(new SolidColorBrush(Color.Parse("#4d4d4d")));
     }
     
     private void HandleStarted(object? sender, PendingConnectionEventArgs e)

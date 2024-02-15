@@ -5,6 +5,7 @@ using Avalonia;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 
 namespace RelativeLocation;
 
@@ -12,7 +13,7 @@ public class Connector : TemplatedControl, IDisposable
 {
     #region Constructor
 
-    protected Connector()
+    public Connector()
     {
         InitializeSubscriptions();
 
@@ -71,6 +72,16 @@ public class Connector : TemplatedControl, IDisposable
     {
         get => GetValue(AnchorProperty);
         set => SetValue(AnchorProperty, value);
+    }
+    
+    // 추가
+    public static readonly StyledProperty<IBrush?> FillProperty =
+        AvaloniaProperty.Register<Connector, IBrush?>(nameof(Fill));
+    
+    public IBrush? Fill
+    {
+        get => GetValue(FillProperty);
+        set => SetValue(FillProperty, value);
     }
 
     private readonly CompositeDisposable _disposables = new CompositeDisposable();
