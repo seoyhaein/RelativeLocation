@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -108,6 +110,18 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         get => _isPanning;
         protected internal set => SetAndRaise(IsPanningProperty, ref _isPanning, value);
     }
+    
+    // 향후 Node, Connection 들이 저장될 collection 임.
+    public static readonly AvaloniaProperty<AvaloniaList<object>> DAGItemsProperty =
+        AvaloniaProperty.Register<DAGlynEditor, AvaloniaList<object>>(nameof(DAGItems));
+
+    public AvaloniaList<object> DAGItems
+    {
+        get => GetValue(DAGItemsProperty) as AvaloniaList<object> ?? new AvaloniaList<object>();
+        set => SetValue(DAGItemsProperty, value);
+    }
+    
+   
 
     #endregion
 
@@ -115,8 +129,18 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
 
     public DAGlynEditor()
     {
+        /*
+         * PendingConnection 인스턴스를 여기서 만들어 준다.
+         */
+        //_pendingConnection = new PendingConnection();
+        //_pendingConnection.IsVisible = false; // 초기 가시성 설정
+        InitPendingConnection();
+        
         ItemsSource = MyItems;
         InitializeSubscriptions();
+        
+        // TODO 이거 확인하자. 꼭~~
+        this.Unloaded += (sender, e) => this.Dispose();
     }
 
     #endregion
@@ -124,13 +148,14 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     #region Fields
 
     private readonly CompositeDisposable _disposables = new CompositeDisposable();
-
-    /// <summary>
-    /// Panning 관련 포인터 위치 값 
-    /// </summary>
+    
+    // Panning 관련 포인터 위치 값 
     private Point _previousPointerPosition;
     private Point _currentPointerPosition;
     //private bool _isPanning;
+    
+    private PendingConnection? _pendingConnection;
+    private PendingConnectionEventHandler _connectionStartedHandler;
 
     #endregion
 
@@ -155,9 +180,13 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
                 h => this.PointerReleased -= h)
             .Subscribe(args => HandlePointerReleased(args.Sender, args.EventArgs))
             .DisposeWith(_disposables);
+        
+        // 모든 Connector 들의 이벤트를 하나로? 모아서 처리한다.
+        // 이벤트 처리 방식은 동일함으로 이러한 방식을 채택했다.
+        _connectionStartedHandler = HandleConnectionStarted;
+        AddHandler(Connector.PendingConnectionStartedEvent, _connectionStartedHandler);
     }
-
-    // 이후 더 자세히 살펴보자 by seoy
+    
     private void HandlePointerPressed(object? sender, PointerPressedEventArgs args)
     {
         if (args.GetCurrentPoint(this).Properties.IsRightButtonPressed && !DisablePanning)
@@ -189,6 +218,16 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
             args.Handled = true;
         }
     }
+    
+    private void HandleConnectionStarted(object? sender, PendingConnectionEventArgs e)
+    {
+        /*if (!e.Canceled && (ConnectionStartedCommand?.CanExecute(e.SourceConnector) ?? false))
+        {
+            ConnectionStartedCommand.Execute(e.SourceConnector);
+        }*/
+        
+        Debug.WriteLine("Ok!!!");
+    }
 
     #endregion
 
@@ -199,9 +238,23 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         MouseLocation = args.GetPosition(this);
     }
 
+    private void InitPendingConnection()
+    {
+        _pendingConnection = new PendingConnection();
+        _pendingConnection.IsVisible = false; // 초기 가시성 설정
+    }
+    
+    // TODO Unload 와 관련 및 GC 관련 해서 생각해보자.
     public void Dispose()
     {
         _disposables.Dispose();
+        if (_pendingConnection != null)
+        {
+            // _pendingConnection에 대한 정리 코드
+            _pendingConnection.Dispose();
+            _pendingConnection = null;
+        }
+        RemoveHandler(Connector.PendingConnectionStartedEvent, _connectionStartedHandler);
     }
     
     #endregion

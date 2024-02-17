@@ -30,10 +30,15 @@ public class Connector : TemplatedControl, IDisposable
 
     #region Routed Events
 
-    public static readonly RoutedEvent<PendingConnectionEventArgs> PendingConnectionStartedEvent =
+    /*public static readonly RoutedEvent<PendingConnectionEventArgs> PendingConnectionStartedEvent =
         RoutedEvent.Register<Connector, PendingConnectionEventArgs>(nameof(PendingConnectionStarted),
+            RoutingStrategies.Bubble);*/
+    
+    public static readonly RoutedEvent<PendingConnectionEventArgs> PendingConnectionStartedEvent =
+        RoutedEvent.Register<Connector, PendingConnectionEventArgs>(
+            nameof(PendingConnectionStarted),
             RoutingStrategies.Bubble);
-
+    
     public static readonly RoutedEvent<PendingConnectionEventArgs> PendingConnectionCompletedEvent =
         RoutedEvent.Register<Connector, PendingConnectionEventArgs>(nameof(PendingConnectionCompleted),
             RoutingStrategies.Bubble);
@@ -42,11 +47,24 @@ public class Connector : TemplatedControl, IDisposable
         RoutedEvent.Register<Connector, PendingConnectionEventArgs>(nameof(PendingConnectionDrag),
             RoutingStrategies.Bubble);
 
-    public event PendingConnectionEventHandler PendingConnectionStarted
+    /*public event PendingConnectionEventHandler PendingConnectionStarted
+    {
+        add => AddHandler(PendingConnectionStartedEvent, value);
+        remove => RemoveHandler(PendingConnectionStartedEvent, value);
+    }*/
+    
+    public event EventHandler<PendingConnectionEventArgs> PendingConnectionStarted
     {
         add => AddHandler(PendingConnectionStartedEvent, value);
         remove => RemoveHandler(PendingConnectionStartedEvent, value);
     }
+    
+    /*public event EventHandler<PointerReleasedEventArgs>? PointerReleased
+    {
+        add { AddHandler(PointerReleasedEvent, value); }
+        remove { RemoveHandler(PointerReleasedEvent, value); }
+    }*/
+
 
     public event PendingConnectionEventHandler PendingConnectionCompleted
     {

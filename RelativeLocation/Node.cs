@@ -37,16 +37,19 @@ public class Node : BaseNode
     
     // Node 의 움직임을 위해
     private TranslateTransform _translateTransform = new TranslateTransform();
+    private IDisposable _disposable;
     
     #endregion
     
+    //TODO Node 삭제되는 것도 신경써야 한다.
     #region Constructor
 
     public Node()
     {
         // 초기 설정에서 TranslateTransform 객체를 RenderTransform으로 설정
         this.RenderTransform = _translateTransform;
-        ParentControlProperty.Changed.Subscribe(OnParentControlProperty);
+        //TODO 살펴보자. dispose
+        _disposable = ParentControlProperty.Changed.Subscribe(HandleParentControlChanged);
     }
 
     public Node(Point location) : this()
@@ -111,7 +114,7 @@ public class Node : BaseNode
         }
     }
     
-    private void OnParentControlProperty(AvaloniaPropertyChangedEventArgs e)
+    private void HandleParentControlChanged(AvaloniaPropertyChangedEventArgs e)
     {
         if (e.NewValue is DAGlynEditorCanvas editorCanvas)
         {
@@ -150,7 +153,7 @@ public class Node : BaseNode
         base.OnApplyTemplate(e);
         this.ParentControl = this.GetParentVisualOfType<DAGlynEditorCanvas>();
     }
-
+   
     public bool CanNodeMove()
     {
         var parentControl = this.GetParentVisualOfType<DAGlynEditorCanvas>();
@@ -170,5 +173,11 @@ public class Node : BaseNode
     {
         this.Location = location;
     }
-
+    
+    // TODO 살펴보자.
+    protected override void Dispose(bool disposing)
+    {
+        _disposable.Dispose();
+        base.Dispose(disposing);
+    }
 }

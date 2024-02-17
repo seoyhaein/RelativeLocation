@@ -27,11 +27,15 @@ public sealed class OutConnector : Connector
 
     static OutConnector()
     {
-        // TODO 향후 이거 주석처리한다.
+        // TODO 향후 이거 주석처리한다. notion 정리 후 주석 삭제
         // UI 바꿀때, Background 속성 변경. 그냥 Background 를 받아서 할까 아니면 지금처럼 Fill 을 만들어 줄까????
         //BackgroundProperty.OverrideDefaultValue<OutConnector>(new SolidColorBrush(Color.Parse("#4d4d4d")));
         //FocusableProperty.OverrideDefaultValue<OutConnector>(true);
-        FillProperty.OverrideDefaultValue<OutConnector>(new SolidColorBrush(Color.Parse("#2e2e2e")));
+        
+        // FillProperty.OverrideDefaultValue<OutConnector>(new SolidColorBrush(Color.Parse("#2e2e2e")));
+        // 물론 static 에 넣었기 때문에 여기서는 한번 사용되고 말지만, 다른 곳에서 사용할려면 새롭게 만들어줘야 함으로 
+        // 별도로 분리해서 이렇게 작성하는게 맞을 듯 싶다. 이거 notion 에 정리한 후에 주석은 삭제한다.
+        FillProperty.OverrideDefaultValue<OutConnector>(BrushResources.OutConnectorDefaultFill);
     }
 
     #endregion
@@ -63,7 +67,8 @@ public sealed class OutConnector : Connector
             args.Handled = true; // 이벤트 전파를 막음.
         }
     }
-
+    // TODO  이제 Connector 는 부모 Layout 의 좌표체계를 가져와야 하기 때문에
+    //  var parent = this.GetParentVisualOfType<Canvas>(); 이부분 고쳐 줘야 한다. 
     protected override void HandlePointerMoved(object? sender, PointerEventArgs args)
     {
         if (sender == null || !this.IsPointerPressed || this.PreviousConnector == null) return;
@@ -117,7 +122,9 @@ public sealed class OutConnector : Connector
         
         args.Handled = true;
     }
-
+    
+    // TODO  이제 Connector 는 부모 Layout 의 좌표체계를 가져와야 하기 때문에
+    //  var parent = this.GetParentVisualOfType<Canvas>(); 이부분 고쳐 줘야 한다. 
     protected override void HandlePointerReleased(object? sender, PointerReleasedEventArgs args)
     {
         if (sender == null) return;
