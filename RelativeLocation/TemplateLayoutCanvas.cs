@@ -4,6 +4,10 @@ using Avalonia.Controls;
 
 namespace RelativeLocation
 {
+    /*
+     * TemplateLayoutCanvas 이 녀석은 ControlTemplate 안에서만 사용해야 한다.
+     * 다른 곳에서 사용할 경우 오작동을? 일으킬 수 있다. 
+     */
     public class TemplateLayoutCanvas : Canvas
     {
         /// <inheritdoc />
@@ -28,14 +32,7 @@ namespace RelativeLocation
                 maxWidth = Math.Max(maxWidth, childRight);
                 maxHeight = Math.Max(maxHeight, childBottom);
             }
-
-            // TODO 화살표 사이즈가 커지거나 화살표 말고 다른 도형으로 대체했을 때는 사이즈를 조정해주거나 해야한다.
-            // 사이즈를 자동으로 맞춰줘야하는 루틴이 필요하다.
-            // 화살표를 화면에 다 담을려면 사이즈를 좀 확장해줘야 한다. 여기서 사이즈는 선분을 기준으로 잡기때문에 화살표 부분은 다 담을 수 없다.
-            // 패딩 주어서 일단 주석처리 함.
-            /*maxWidth += 20d;
-            maxHeight += 20d;*/
-
+            
             return new Size(maxWidth, maxHeight);
         }
         

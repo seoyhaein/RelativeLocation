@@ -3,8 +3,6 @@ using System;
 using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Shapes;
-using Avalonia.Media;
 
 namespace RelativeLocation;
 
@@ -44,14 +42,6 @@ public sealed class OutConnector : Connector, ILocatable
 
     static OutConnector()
     {
-        // TODO 향후 이거 주석처리한다. notion 정리 후 주석 삭제
-        // UI 바꿀때, Background 속성 변경. 그냥 Background 를 받아서 할까 아니면 지금처럼 Fill 을 만들어 줄까????
-        //BackgroundProperty.OverrideDefaultValue<OutConnector>(new SolidColorBrush(Color.Parse("#4d4d4d")));
-        //FocusableProperty.OverrideDefaultValue<OutConnector>(true);
-        
-        // FillProperty.OverrideDefaultValue<OutConnector>(new SolidColorBrush(Color.Parse("#2e2e2e")));
-        // 물론 static 에 넣었기 때문에 여기서는 한번 사용되고 말지만, 다른 곳에서 사용할려면 새롭게 만들어줘야 함으로 
-        // 별도로 분리해서 이렇게 작성하는게 맞을 듯 싶다. 이거 notion 에 정리한 후에 주석은 삭제한다.
         FillProperty.OverrideDefaultValue<OutConnector>(BrushResources.OutConnectorDefaultFill);
     }
 
@@ -60,7 +50,7 @@ public sealed class OutConnector : Connector, ILocatable
     #region Fields
 
     // Connector 밖으로 한번이라도 나가면 true 가 된다.
-    private bool _outSideOutConnector = false;
+    private bool _outSideOutConnector;
 
     #endregion
 
@@ -82,7 +72,7 @@ public sealed class OutConnector : Connector, ILocatable
             this.PreviousConnector = this;
             this.IsPointerPressed = true; // 마우스 눌림 상태 설정
             args.Handled = true; // 이벤트 전파를 막음.
-            RaiseConnectionStarted();
+            RaiseConnectionStartEvent(sender);
         }
     }
     // TODO  이제 Connector 는 부모 Layout 의 좌표체계를 가져와야 하기 때문에
@@ -104,7 +94,7 @@ public sealed class OutConnector : Connector, ILocatable
         if (elementUnderPointer == null && this.IsPointerPressed)
         {
             // 1. 정상적인 Moved
-            //TODO 여기서 Caputed 와 비교할 필요가 있을까? 일단 해줌. 아래 조건문을 할 필요가 없을 듯 하다.
+            //TODO 여기서 Captured 와 비교할 필요가 있을까? 일단 해줌. 아래 조건문을 할 필요가 없을 듯 하다.
             if (this.PreviousConnector.Equals(args.Pointer.Captured) && this.Equals(args.Pointer.Captured))
             {
                 _outSideOutConnector = true;
@@ -184,18 +174,62 @@ public sealed class OutConnector : Connector, ILocatable
 
     #region Methods
     
-    // TODO PendingConnectionStartedEvent 이거 집어넣는거 일단 수정해야함.
-    private void RaiseConnectionStarted()
+    // Raise events
+    protected override void RaiseConnectionStartEvent(object? sender)
     {
-        var args = new PendingConnectionEventArgs(PendingConnectionStartedEvent);
-        if (args == null)
-        {
-            Debug.WriteLine("args is null");
-            return;
-        }
-                
+        var args = new PendingConnectionEventArgs(PendingConnectionStartedEvent, sender);
         RaiseEvent(args);
     }
+
+    protected override void RaiseConnectionDragEvent(object? sender, Vector? offset)
+    {
+        var args = new PendingConnectionEventArgs(PendingConnectionDragEvent, sender, offset);
+        RaiseEvent(args);
+    }
+
+    protected override void RaiseConnectionCompletedEvent(object? sender)
+    {
+        var args = new PendingConnectionEventArgs(PendingConnectionCompletedEvent, sender);
+        RaiseEvent(args);
+    }
+    
+    // DataContext 는 살펴보자.
+    /*private void StartedRaiseEvent(object? sender)
+    {
+        var args = new PendingConnectionEventArgs(PendingConnectionStartedEvent, this, DataContext)
+        {
+            Anchor = Anchor,
+            Sender = sender,
+        };
+
+        RaiseEvent(args);
+    }
+
+    // 빈공란으로 향후 남겨두자.
+    private void DragRaiseEvent(object? sender ,Vector? offset)
+    {
+        if (offset == null) return;
+
+        var args = new PendingConnectionEventArgs(PendingConnectionDragEvent, this, DataContext)
+        {
+            OffsetX = offset.Value.X,
+            OffsetY = offset.Value.Y,
+            Sender = sender,
+        };
+
+        RaiseEvent(args);
+    }
+
+    private void CompletedRaiseEvent(object? sender)
+    {
+        // PendingConnectionEventArgs(DataContext) 관련해서 살펴봐야 함.
+        var args = new PendingConnectionEventArgs(PendingConnectionCompletedEvent, this, DataContext)
+        {
+            Sender = sender,
+            //Anchor = Anchor,
+        };
+        RaiseEvent(args);
+    }*/
 
     #endregion
     

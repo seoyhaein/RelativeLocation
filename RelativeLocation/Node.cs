@@ -37,7 +37,7 @@ public class Node : BaseNode
     
     // Node 의 움직임을 위해
     private TranslateTransform _translateTransform = new TranslateTransform();
-    private IDisposable _disposable;
+    private readonly IDisposable _disposable;
     
     #endregion
     

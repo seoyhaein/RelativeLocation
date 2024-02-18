@@ -16,63 +16,42 @@ public class Connector : TemplatedControl, IDisposable
     public Connector()
     {
         InitializeSubscriptions();
-
         // TODO axaml 에서 생성한 경우 Dispose 할 수 없는데 이렇게 하면 될까?
-        this.Unloaded += (sender, e) => this.Dispose();
+        this.Unloaded += (_, _) => this.Dispose();
     }
-
-    /*static Connector()
-    {
-        FocusableProperty.OverrideDefaultValue<Connector>(true);
-    }*/
-
+    
     #endregion
 
     #region Routed Events
 
-    /*public static readonly RoutedEvent<PendingConnectionEventArgs> PendingConnectionStartedEvent =
-        RoutedEvent.Register<Connector, PendingConnectionEventArgs>(nameof(PendingConnectionStarted),
-            RoutingStrategies.Bubble);*/
-    
     public static readonly RoutedEvent<PendingConnectionEventArgs> PendingConnectionStartedEvent =
         RoutedEvent.Register<Connector, PendingConnectionEventArgs>(
             nameof(PendingConnectionStarted),
             RoutingStrategies.Bubble);
-    
+
     public static readonly RoutedEvent<PendingConnectionEventArgs> PendingConnectionCompletedEvent =
-        RoutedEvent.Register<Connector, PendingConnectionEventArgs>(nameof(PendingConnectionCompleted),
+        RoutedEvent.Register<Connector, PendingConnectionEventArgs>(
+            nameof(PendingConnectionCompleted),
             RoutingStrategies.Bubble);
 
     public static readonly RoutedEvent<PendingConnectionEventArgs> PendingConnectionDragEvent =
-        RoutedEvent.Register<Connector, PendingConnectionEventArgs>(nameof(PendingConnectionDrag),
+        RoutedEvent.Register<Connector, PendingConnectionEventArgs>(
+            nameof(PendingConnectionDrag),
             RoutingStrategies.Bubble);
 
-    /*public event PendingConnectionEventHandler PendingConnectionStarted
-    {
-        add => AddHandler(PendingConnectionStartedEvent, value);
-        remove => RemoveHandler(PendingConnectionStartedEvent, value);
-    }*/
-    
     public event EventHandler<PendingConnectionEventArgs> PendingConnectionStarted
     {
         add => AddHandler(PendingConnectionStartedEvent, value);
         remove => RemoveHandler(PendingConnectionStartedEvent, value);
     }
-    
-    /*public event EventHandler<PointerReleasedEventArgs>? PointerReleased
-    {
-        add { AddHandler(PointerReleasedEvent, value); }
-        remove { RemoveHandler(PointerReleasedEvent, value); }
-    }*/
 
-
-    public event PendingConnectionEventHandler PendingConnectionCompleted
+    public event EventHandler<PendingConnectionEventArgs> PendingConnectionCompleted
     {
         add => AddHandler(PendingConnectionCompletedEvent, value);
         remove => RemoveHandler(PendingConnectionCompletedEvent, value);
     }
 
-    public event PendingConnectionEventHandler PendingConnectionDrag
+    public event EventHandler<PendingConnectionEventArgs> PendingConnectionDrag
     {
         add => AddHandler(PendingConnectionDragEvent, value);
         remove => RemoveHandler(PendingConnectionDragEvent, value);
@@ -91,11 +70,11 @@ public class Connector : TemplatedControl, IDisposable
         get => GetValue(AnchorProperty);
         set => SetValue(AnchorProperty, value);
     }
-    
+
     // 추가
     public static readonly StyledProperty<IBrush?> FillProperty =
         AvaloniaProperty.Register<Connector, IBrush?>(nameof(Fill));
-    
+
     public IBrush? Fill
     {
         get => GetValue(FillProperty);
@@ -143,43 +122,18 @@ public class Connector : TemplatedControl, IDisposable
     {
     }
 
-    // DataContext 는 살펴보자.
-    /*private void StartedRaiseEvent(object? sender)
+    protected virtual void RaiseConnectionStartEvent(object? sender)
     {
-        var args = new PendingConnectionEventArgs(PendingConnectionStartedEvent, this, DataContext)
-        {
-            Anchor = Anchor,
-            Sender = sender,
-        };
-
-        RaiseEvent(args);
     }
 
-    // 빈공란으로 향후 남겨두자.
-    private void DragRaiseEvent(object? sender ,Vector? offset)
+    // TODO offset 이라는 이름을 StartLocation, MovingLocation 등과 살펴보자.
+    protected virtual void RaiseConnectionDragEvent(object? sender, Vector? offset)
     {
-        if (offset == null) return;
-
-        var args = new PendingConnectionEventArgs(PendingConnectionDragEvent, this, DataContext)
-        {
-            OffsetX = offset.Value.X,
-            OffsetY = offset.Value.Y,
-            Sender = sender,
-        };
-
-        RaiseEvent(args);
     }
 
-    private void CompletedRaiseEvent(object? sender)
+    protected virtual void RaiseConnectionCompletedEvent(object? sender)
     {
-        // PendingConnectionEventArgs(DataContext) 관련해서 살펴봐야 함.
-        var args = new PendingConnectionEventArgs(PendingConnectionCompletedEvent, this, DataContext)
-        {
-            Sender = sender,
-            //Anchor = Anchor,
-        };
-        RaiseEvent(args);
-    }*/
+    }
 
     #endregion
 

@@ -114,8 +114,8 @@ namespace RelativeLocation
         #endregion
         
         #region Fields
-
-        private readonly IDisposable disposable;
+        // TODO 생각하기 readonly 가 필요할까?
+        private readonly IDisposable _disposable;
 
         #endregion
 
@@ -123,27 +123,9 @@ namespace RelativeLocation
 
         public PendingConnection()
         {
-            /* GPT 답변
-             * IsVisibleProperty.OverrideDefaultValue<T> 메서드는 Avalonia 프로퍼티 시스템에서 특정 종류의 컨트롤에 대한 기본값을 전역적으로 재정의할 때 사용됩니다.
-             * 이것은 모든 PendingConnection 인스턴스에 영향을 미치므로,
-             * 당신이 원하는 것이 단지 특정 인스턴스의 가시성을 설정하는 것이라면, 이 방법은 권장되지 않습니다.
-             */   
-            //FocusableProperty.OverrideDefaultValue<Connector>(true);
-            //IsVisibleProperty.OverrideDefaultValue<PendingConnection>(false);
-            
-           
-            /*_fillAndStrokeSubscription = SetFillAndStrokeProperty.Changed.Subscribe(value =>
-            {
-                if (value.Sender is Connection connection)
-                {
-                    var brush = value.GetNewValue<IBrush?>(); // value.NewValue 대신 GetNewValue<IBrush?>() 사용
-                    connection.Fill = brush;
-                    connection.Stroke = brush;
-                }
-            });*/
-            disposable = SetFillAndStrokeProperty.Changed.Subscribe(SetFillAndStrokePropertyChanged);
+            _disposable = SetFillAndStrokeProperty.Changed.Subscribe(SetFillAndStrokePropertyChanged);
             // TODO axaml 에서 사용시 Dispose 하는 방법에 대해서 생각해보기.
-            this.Unloaded += (sender, e) => this.Dispose();
+            this.Unloaded += (_, _) => this.Dispose();
         }
 
         #endregion
@@ -163,7 +145,7 @@ namespace RelativeLocation
         public void Dispose()
         {
             // 관리되는 자원 해제
-            disposable.Dispose();
+            _disposable.Dispose();
         }
 
         #endregion

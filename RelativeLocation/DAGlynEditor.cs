@@ -15,9 +15,10 @@ namespace RelativeLocation;
 public class DAGlynEditor : SelectingItemsControl, IDisposable
 {
     #region Dependency Properties
-    
+
     public static readonly StyledProperty<Point> ViewportLocationProperty =
-        AvaloniaProperty.Register<DAGlynEditor, Point>(nameof(ViewportLocation), new Point(0,0));
+        AvaloniaProperty.Register<DAGlynEditor, Point>(
+            nameof(ViewportLocation), new Point(0, 0));
 
     public Point ViewportLocation
     {
@@ -64,7 +65,8 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     }
 
     public static readonly StyledProperty<bool> EnableRealtimeSelectionProperty =
-        AvaloniaProperty.Register<DAGlynEditor, bool>(nameof(EnableRealtimeSelection));
+        AvaloniaProperty.Register<DAGlynEditor, bool>(
+            nameof(EnableRealtimeSelection));
 
     public bool EnableRealtimeSelection
     {
@@ -97,12 +99,12 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         get => _isPreviewingSelection;
         internal set => SetAndRaise(IsPreviewingSelectionProperty, ref _isPreviewingSelection, value);
     }
-    
+
     public static readonly DirectProperty<DAGlynEditor, bool> IsPanningProperty =
         AvaloniaProperty.RegisterDirect<DAGlynEditor, bool>(
             nameof(IsPanning),
             o => o.IsPanning);
-    
+
     private bool _isPanning = false;
 
     public bool IsPanning
@@ -110,18 +112,17 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         get => _isPanning;
         protected internal set => SetAndRaise(IsPanningProperty, ref _isPanning, value);
     }
-    
+
     // 향후 Node, Connection 들이 저장될 collection 임.
     public static readonly AvaloniaProperty<AvaloniaList<object>> DAGItemsProperty =
-        AvaloniaProperty.Register<DAGlynEditor, AvaloniaList<object>>(nameof(DAGItems));
+        AvaloniaProperty.Register<DAGlynEditor, AvaloniaList<object>>(
+            nameof(DAGItems));
 
     public AvaloniaList<object> DAGItems
     {
         get => GetValue(DAGItemsProperty) as AvaloniaList<object> ?? new AvaloniaList<object>();
         set => SetValue(DAGItemsProperty, value);
     }
-    
-   
 
     #endregion
 
@@ -135,10 +136,10 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         //_pendingConnection = new PendingConnection();
         //_pendingConnection.IsVisible = false; // 초기 가시성 설정
         InitPendingConnection();
-        
+
         ItemsSource = MyItems;
         InitializeSubscriptions();
-        
+
         // TODO 이거 확인하자. 꼭~~
         this.Unloaded += (sender, e) => this.Dispose();
     }
@@ -148,14 +149,14 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     #region Fields
 
     private readonly CompositeDisposable _disposables = new CompositeDisposable();
-    
+    private EventHandler<PendingConnectionEventArgs>? _connectionStartedHandler;
+
     // Panning 관련 포인터 위치 값 
     private Point _previousPointerPosition;
     private Point _currentPointerPosition;
     //private bool _isPanning;
-    
+
     private PendingConnection? _pendingConnection;
-    private PendingConnectionEventHandler _connectionStartedHandler;
 
     #endregion
 
@@ -180,13 +181,13 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
                 h => this.PointerReleased -= h)
             .Subscribe(args => HandlePointerReleased(args.Sender, args.EventArgs))
             .DisposeWith(_disposables);
-        
+
         // 모든 Connector 들의 이벤트를 하나로? 모아서 처리한다.
         // 이벤트 처리 방식은 동일함으로 이러한 방식을 채택했다.
         _connectionStartedHandler = HandleConnectionStarted;
         AddHandler(Connector.PendingConnectionStartedEvent, _connectionStartedHandler);
     }
-    
+
     private void HandlePointerPressed(object? sender, PointerPressedEventArgs args)
     {
         if (args.GetCurrentPoint(this).Properties.IsRightButtonPressed && !DisablePanning)
@@ -203,7 +204,8 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         if (IsPanning)
         {
             _currentPointerPosition = args.GetPosition(this);
-            ViewportLocation -= (_currentPointerPosition - _previousPointerPosition) / 1; // Adjust division based on actual zoom level
+            ViewportLocation -=
+                (_currentPointerPosition - _previousPointerPosition) / 1; // Adjust division based on actual zoom level
             _previousPointerPosition = _currentPointerPosition;
             args.Handled = true;
         }
@@ -218,14 +220,14 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
             args.Handled = true;
         }
     }
-    
+
     private void HandleConnectionStarted(object? sender, PendingConnectionEventArgs e)
     {
         /*if (!e.Canceled && (ConnectionStartedCommand?.CanExecute(e.SourceConnector) ?? false))
         {
             ConnectionStartedCommand.Execute(e.SourceConnector);
         }*/
-        
+
         Debug.WriteLine("Ok!!!");
     }
 
@@ -243,7 +245,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         _pendingConnection = new PendingConnection();
         _pendingConnection.IsVisible = false; // 초기 가시성 설정
     }
-    
+
     // TODO Unload 와 관련 및 GC 관련 해서 생각해보자.
     public void Dispose()
     {
@@ -254,27 +256,36 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
             _pendingConnection.Dispose();
             _pendingConnection = null;
         }
+
         RemoveHandler(Connector.PendingConnectionStartedEvent, _connectionStartedHandler);
     }
-    
+
     #endregion
-    
+
     /// <inheritdoc />
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
         base.OnApplyTemplate(e);
     }
-    
+
     // 테스트로 일단 이렇게 제작한다. 테스트 후 이후 내용 변경함.
     /// <inheritdoc />
     protected override Control CreateContainerForItemOverride(object? item, int index, object? recycleKey)
     {
-        if (item is TestConnector testConnector)
+        var testConnector = item as TestConnector;
+        if (testConnector != null)
         {
-            if (testConnector.ConType == ConnectorType.OutConnector) return new OutConnector();
-            if (testConnector.ConType == ConnectorType.InConnector) return new InConnector();
+            switch (testConnector.ConType)
+            {
+                case ConnectorType.OutConnector:
+                    return new OutConnector();
+                case ConnectorType.InConnector:
+                    return new InConnector();
+                default:
+                    break;
+            }
         }
-
+        
         return new Node();
     }
 
@@ -289,7 +300,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
 
         if (container is InConnector inConnector && item is TestConnector inCon)
             inConnector.Location = inCon.Location;
-        
+
         if (container is OutConnector outConnector && item is TestConnector outCon)
             outConnector.Location = outCon.Location;
     }
@@ -300,6 +311,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     {
         new Node()
     };
+
     // TODO 이걸로 속성하나 만들어야 할듯하다.
     // 그리고 여기에 Node 들을 추가하는 메서드들을 만들자.
     public AvaloniaList<Node> NodeItems { get; set; } = new AvaloniaList<Node>();

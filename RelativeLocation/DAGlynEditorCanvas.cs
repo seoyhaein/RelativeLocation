@@ -1,5 +1,4 @@
 using System;
-using System.Reactive.Disposables;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
@@ -11,7 +10,8 @@ public sealed class DAGlynEditorCanvas : Canvas, IDisposable
     #region Dependency Properties
 
     public static readonly StyledProperty<Point> ViewportLocationProperty =
-        AvaloniaProperty.Register<DAGlynEditorCanvas, Point>(nameof(ViewportLocation), new Point(0,0));
+        AvaloniaProperty.Register<DAGlynEditorCanvas, Point>(
+            nameof(ViewportLocation), new Point(0,0));
 
     public Point ViewportLocation
     {
@@ -22,8 +22,8 @@ public sealed class DAGlynEditorCanvas : Canvas, IDisposable
     #endregion
 
     #region Fields
-
-    private readonly CompositeDisposable _disposables = new CompositeDisposable();
+    
+    private readonly IDisposable _disposable;
     
     #endregion
 
@@ -31,17 +31,8 @@ public sealed class DAGlynEditorCanvas : Canvas, IDisposable
 
     public DAGlynEditorCanvas()
     {
-        //InitializeSubscriptions();
-        //this.RenderTransform = _translateTransform;
-        //this.RenderTransform = new TranslateTransform();
-        // 일단 기억을 위해서 주석으로 남겨놓음. 
-        // GetPropertyChangedObservable 방식은 Rx 방식으로 접근한 것임. 좀더 복잡하고, 다양한 기능제공(notion 참고 및 향후 기술 자료에서 언급)
-        // this.GetPropertyChangedObservable(ViewportLocationProperty).Subscribe(OnViewportLocationChanged);
-        // 동일한 기능을 제공하지만, 단순히 속성의 변경만을 감지함. 코드는 간단함.
-        //ViewportLocationProperty.Changed.Subscribe(OnViewportLocationChanged);
-
         RenderTransform = new TranslateTransform();
-        ViewportLocationProperty.Changed.Subscribe(OnViewportLocationChanged);
+        _disposable = ViewportLocationProperty.Changed.Subscribe(OnViewportLocationChanged);
     }
 
     #endregion
@@ -98,7 +89,7 @@ public sealed class DAGlynEditorCanvas : Canvas, IDisposable
     public void Dispose()
     {
         // 관리되는 자원 해제
-        _disposables.Dispose();
+        _disposable.Dispose();
     }
 
     #endregion

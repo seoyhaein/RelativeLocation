@@ -18,3 +18,7 @@
 - default 값으로 new 해주는 값인 경우, 이걸 별도로 static 으로 만들어 놓는 거와 새롭게 new 해주는 거랑 어떤게 성능이 더 좋은지 파악해야 할 거 같다.
 
 ## 코드 정리 순서
+
+## 벤치마킹
+- Pro .NET Benchmarking 책 읽고 싶다. T.T
+- https://github.com/dotnet/BenchmarkDotNet
