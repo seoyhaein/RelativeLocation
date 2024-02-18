@@ -265,9 +265,16 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         base.OnApplyTemplate(e);
     }
     
+    // 테스트로 일단 이렇게 제작한다. 테스트 후 이후 내용 변경함.
     /// <inheritdoc />
     protected override Control CreateContainerForItemOverride(object? item, int index, object? recycleKey)
     {
+        if (item is TestConnector testConnector)
+        {
+            if (testConnector.ConType == ConnectorType.OutConnector) return new OutConnector();
+            if (testConnector.ConType == ConnectorType.InConnector) return new InConnector();
+        }
+
         return new Node();
     }
 
@@ -278,11 +285,13 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     protected override void PrepareContainerForItemOverride(Control container, object? item, int index)
     {
         if (container is Node myContainer)
-        {
             myContainer.Location = new Point(10, 10);
-            //myContainer.Width = 20;
-            //myContainer.Height = 20;
-        }
+
+        if (container is InConnector inConnector && item is TestConnector inCon)
+            inConnector.Location = inCon.Location;
+        
+        if (container is OutConnector outConnector && item is TestConnector outCon)
+            outConnector.Location = outCon.Location;
     }
 
     #region Tests

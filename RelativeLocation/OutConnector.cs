@@ -1,6 +1,7 @@
 using Avalonia.Input;
 using System;
 using System.Diagnostics;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Media;
@@ -18,10 +19,26 @@ namespace RelativeLocation;
 /// 공통된 부분 깔끔하게 정리해야함. 
 /// </summary>
 
+// ILocatable 은 테스트 용도로 넣었음. 테스트 끝난 후 삭제할 예정임. 
+// LocationProperty 삭제 예정
+
 // TODO 코드 정리 필요. 
-public sealed class OutConnector : Connector
+public sealed class OutConnector : Connector, ILocatable
 {
     protected override Type StyleKeyOverride => typeof(Connector);
+
+    #region Dependency Properties
+
+    public static readonly StyledProperty<Point> LocationProperty =
+        AvaloniaProperty.Register<BaseNode, Point>(nameof(Location), new Point(0, 0));
+
+    public Point Location
+    {
+        get => GetValue(LocationProperty);
+        set => SetValue(LocationProperty, value);
+    }
+
+    #endregion
 
     #region Constructor
 
@@ -65,6 +82,7 @@ public sealed class OutConnector : Connector
             this.PreviousConnector = this;
             this.IsPointerPressed = true; // 마우스 눌림 상태 설정
             args.Handled = true; // 이벤트 전파를 막음.
+            RaiseConnectionStarted();
         }
     }
     // TODO  이제 Connector 는 부모 Layout 의 좌표체계를 가져와야 하기 때문에
@@ -160,6 +178,23 @@ public sealed class OutConnector : Connector
                 _outSideOutConnector = false;
             }
         }
+    }
+
+    #endregion
+
+    #region Methods
+    
+    // TODO PendingConnectionStartedEvent 이거 집어넣는거 일단 수정해야함.
+    private void RaiseConnectionStarted()
+    {
+        var args = new PendingConnectionEventArgs(PendingConnectionStartedEvent);
+        if (args == null)
+        {
+            Debug.WriteLine("args is null");
+            return;
+        }
+                
+        RaiseEvent(args);
     }
 
     #endregion

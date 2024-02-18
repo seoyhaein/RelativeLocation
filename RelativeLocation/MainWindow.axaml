@@ -22,8 +22,10 @@
         <controls:Node Location="20,20" /> 
     </controls:TemplateLayoutCanvas>
     -->
-    <Grid>
+    <Canvas>
         <!--Canvas 수정해야 함.-->
-        <controls:DAGlynEditor />
-    </Grid>
+        <controls:DAGlynEditor x:Name="EditorTester" Width="400" Height="400" 
+                               x:DataType="controls:MainWindow" Canvas.Top="200" Canvas.Left="200" 
+                               ItemsSource="{Binding ConItems}"/>
+    </Canvas>
 </Window>
