@@ -24,7 +24,7 @@ namespace RelativeLocation
                 child.Measure(constraint);
 
                 // 자식 컨트롤이 ILocatable 인터페이스를 구현하는 경우, Location 속성을 사용
-                Point location = child is ILocatable locatableChild ? locatableChild.Location : new Point(0, 0);
+                Point location = child is ILocatable locatableChild ? locatableChild.Location : Constants.ZeroPoint;
 
                 double childRight = location.X + child.DesiredSize.Width;
                 double childBottom = location.Y + child.DesiredSize.Height;

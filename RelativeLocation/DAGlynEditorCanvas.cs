@@ -11,7 +11,7 @@ public sealed class DAGlynEditorCanvas : Canvas, IDisposable
 
     public static readonly StyledProperty<Point> ViewportLocationProperty =
         AvaloniaProperty.Register<DAGlynEditorCanvas, Point>(
-            nameof(ViewportLocation), new Point(0,0));
+            nameof(ViewportLocation), Constants.ZeroPoint);
 
     public Point ViewportLocation
     {

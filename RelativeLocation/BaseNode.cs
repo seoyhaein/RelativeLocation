@@ -13,7 +13,7 @@ public class BaseNode : ContentControl, IDisposable, ILocatable
     #region Dependency Properties
 
     public static readonly StyledProperty<Point> LocationProperty =
-        AvaloniaProperty.Register<BaseNode, Point>(nameof(Location), new Point(0, 0));
+        AvaloniaProperty.Register<BaseNode, Point>(nameof(Location), Constants.ZeroPoint);
 
     public Point Location
     {

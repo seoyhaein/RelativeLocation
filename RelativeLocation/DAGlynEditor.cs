@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using Avalonia;
@@ -18,7 +17,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
 
     public static readonly StyledProperty<Point> ViewportLocationProperty =
         AvaloniaProperty.Register<DAGlynEditor, Point>(
-            nameof(ViewportLocation), new Point(0, 0));
+            nameof(ViewportLocation), Constants.ZeroPoint);
 
     public Point ViewportLocation
     {
@@ -141,7 +140,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         InitializeSubscriptions();
 
         // TODO 이거 확인하자. 꼭~~
-        this.Unloaded += (sender, e) => this.Dispose();
+        this.Unloaded += (_, _) => this.Dispose();
     }
 
     #endregion
@@ -150,13 +149,16 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
 
     private readonly CompositeDisposable _disposables = new CompositeDisposable();
     private EventHandler<PendingConnectionEventArgs>? _connectionStartedHandler;
+    private EventHandler<PendingConnectionEventArgs>? _connectionDragHandler;
+    private EventHandler<PendingConnectionEventArgs>? _connectionCompleteHandler;
 
     // Panning 관련 포인터 위치 값 
     private Point _previousPointerPosition;
     private Point _currentPointerPosition;
     //private bool _isPanning;
-
-    private PendingConnection? _pendingConnection;
+    
+    // 일단 이렇게 하고 이거 나중에 static constructor 에 넣자. 
+    private PendingConnection? _pendingConnection = new PendingConnection();
 
     #endregion
 
@@ -185,7 +187,11 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         // 모든 Connector 들의 이벤트를 하나로? 모아서 처리한다.
         // 이벤트 처리 방식은 동일함으로 이러한 방식을 채택했다.
         _connectionStartedHandler = HandleConnectionStarted;
+        _connectionDragHandler = HandleConnectionDrag;
+        _connectionCompleteHandler = HandleConnectionComplete;
         AddHandler(Connector.PendingConnectionStartedEvent, _connectionStartedHandler);
+        AddHandler(Connector.PendingConnectionDragEvent, _connectionDragHandler);
+        AddHandler(Connector.PendingConnectionCompletedEvent, _connectionCompleteHandler);
     }
 
     private void HandlePointerPressed(object? sender, PointerPressedEventArgs args)
@@ -221,14 +227,45 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         }
     }
 
-    private void HandleConnectionStarted(object? sender, PendingConnectionEventArgs e)
+    private void HandleConnectionStarted(object? sender, PendingConnectionEventArgs args)
     {
-        /*if (!e.Canceled && (ConnectionStartedCommand?.CanExecute(e.SourceConnector) ?? false))
+        // TODO 추후 최적화 하자.
+        if (sender == null) return;
+        //if (sender is not OutConnector) return;
+        if (args.Source is OutConnector)
         {
-            ConnectionStartedCommand.Execute(e.SourceConnector);
-        }*/
+            if (_pendingConnection == null) return;
 
+            /*if (_pendingConnection.IsVisible == false)
+                _pendingConnection.IsVisible = true;*/
+            if (args.Anchor.HasValue)
+            {
+                _pendingConnection.SourceAnchor = args.Anchor.Value;
+            }
+            
+        }
+        
         Debug.WriteLine("Ok!!!");
+    }
+
+    private void HandleConnectionDrag(object? sender, PendingConnectionEventArgs args)
+    {
+        if (args.Source is OutConnector)
+        {
+            if (_pendingConnection == null) return;
+
+            if (_pendingConnection.IsVisible == false)
+                _pendingConnection.IsVisible = true;
+            if (args.Offset.HasValue)
+            {
+                _pendingConnection.TargetAnchor = (Point)args.Offset.Value;
+            }
+        }
+    }
+    
+    private void HandleConnectionComplete(object? sender, PendingConnectionEventArgs args)
+    {
+        
     }
 
     #endregion
@@ -242,7 +279,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
 
     private void InitPendingConnection()
     {
-        _pendingConnection = new PendingConnection();
+        //_pendingConnection = new PendingConnection();
         _pendingConnection.IsVisible = false; // 초기 가시성 설정
     }
 
@@ -258,6 +295,8 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         }
 
         RemoveHandler(Connector.PendingConnectionStartedEvent, _connectionStartedHandler);
+        RemoveHandler(Connector.PendingConnectionDragEvent, _connectionDragHandler);
+        RemoveHandler(Connector.PendingConnectionCompletedEvent, _connectionCompleteHandler);
     }
 
     #endregion
@@ -266,6 +305,12 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
         base.OnApplyTemplate(e);
+
+        var canvas = e.NameScope.Find<DAGlynEditorCanvas>("PART_ItemsHost");
+        if (canvas is not null && _pendingConnection is not null)
+        {
+            canvas.Children.Add(_pendingConnection);
+        }
     }
 
     // 테스트로 일단 이렇게 제작한다. 테스트 후 이후 내용 변경함.

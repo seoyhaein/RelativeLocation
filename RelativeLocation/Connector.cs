@@ -122,16 +122,15 @@ public class Connector : TemplatedControl, IDisposable
     {
     }
 
-    protected virtual void RaiseConnectionStartEvent(object? sender)
+    protected virtual void RaiseConnectionStartEvent(Connector? connector, Point? anchor)
+    {
+    }
+    
+    protected virtual void RaiseConnectionDragEvent(Connector? connector, Vector? offset)
     {
     }
 
-    // TODO offset 이라는 이름을 StartLocation, MovingLocation 등과 살펴보자.
-    protected virtual void RaiseConnectionDragEvent(object? sender, Vector? offset)
-    {
-    }
-
-    protected virtual void RaiseConnectionCompletedEvent(object? sender)
+    protected virtual void RaiseConnectionCompletedEvent(Connector? connector)
     {
     }
 

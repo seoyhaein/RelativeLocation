@@ -11,6 +11,15 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        
+        // for test
+        /*_pendingConnection = new PendingConnection();
+        _pendingConnection.IsVisible = true; // 초기 가시성 설정
+        _pendingConnection.SourceAnchor = new Point(10, 10);
+        _pendingConnection.TargetAnchor = new Point(200, 200);
+        
+        MainCanvas.Children.Add(_pendingConnection);*/
+        
         DataContext = this;
     }
     
@@ -46,7 +55,7 @@ public class TestConnector
     public Point Location { get; set; }
     public double W { get; set; }
     public double H { get; set; }
-    public IImmutableSolidColorBrush Br { get; set; }
+    //public IImmutableSolidColorBrush Br { get; set; }
 
     public ConnectorType ConType { get; set; }
 

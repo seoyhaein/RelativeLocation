@@ -28,7 +28,7 @@ public sealed class OutConnector : Connector, ILocatable
     #region Dependency Properties
 
     public static readonly StyledProperty<Point> LocationProperty =
-        AvaloniaProperty.Register<BaseNode, Point>(nameof(Location), new Point(0, 0));
+        AvaloniaProperty.Register<BaseNode, Point>(nameof(Location), Constants.ZeroPoint);
 
     public Point Location
     {
@@ -72,7 +72,12 @@ public sealed class OutConnector : Connector, ILocatable
             this.PreviousConnector = this;
             this.IsPointerPressed = true; // 마우스 눌림 상태 설정
             args.Handled = true; // 이벤트 전파를 막음.
-            RaiseConnectionStartEvent(sender);
+            // TODO 이 부분에서 마우스 위치 값은 향후 조정해야함. 지금은 그냥 PendingConnection 이 완성되는 것만 확인한다.
+            // 테스트를 일단 Canvas에서 진행함으로 이렇게 했다. 테스트 끝난후 이거 반드시 수정해야한다.
+            var parent = this.GetParentVisualOfType<Canvas>();
+            if (parent == null) return;
+            var currentPosition = args.GetPosition(parent);
+            RaiseConnectionStartEvent(this, currentPosition);
         }
     }
     // TODO  이제 Connector 는 부모 Layout 의 좌표체계를 가져와야 하기 때문에
@@ -87,7 +92,7 @@ public sealed class OutConnector : Connector, ILocatable
         var currentPosition = args.GetPosition(parent);
 
         // 마우스 이동중 새로운 Connector 에 들어가면 null 이 아님.
-        var elementUnderPointer = parent.GetElementUnderMouse<OutConnector>(currentPosition);
+        var elementUnderPointer = parent.GetElementUnderMouse<Connector>(currentPosition);
 
         // 한번이라도 OutConnector 를 나가면.
 
@@ -98,6 +103,7 @@ public sealed class OutConnector : Connector, ILocatable
             if (this.PreviousConnector.Equals(args.Pointer.Captured) && this.Equals(args.Pointer.Captured))
             {
                 _outSideOutConnector = true;
+                RaiseConnectionDragEvent(this,(Vector)currentPosition);
                 Debug.Print("정상 Moved");
             }
         }
@@ -107,10 +113,16 @@ public sealed class OutConnector : Connector, ILocatable
         if (elementUnderPointer != null && elementUnderPointer.Equals(this.PreviousConnector) && this.IsPointerPressed)
         {
             if (_outSideOutConnector && this.PreviousConnector.Equals(args.Pointer.Captured))
+            {
+                RaiseConnectionDragEvent(this,(Vector)currentPosition);
                 Debug.Print("그냥 외곽에 있다가 다시 들어간 경우");
+            }
 
             if (!_outSideOutConnector && this.PreviousConnector.Equals(args.Pointer.Captured))
+            {
+                RaiseConnectionDragEvent(this,(Vector)currentPosition);
                 Debug.Print("OutConnector 내에서의 마우스 이동.");
+            }
         }
 
         // 2`` 다른 Connector로 들어온 경우
@@ -118,6 +130,7 @@ public sealed class OutConnector : Connector, ILocatable
         {
             //if (this.PreviousConnector.Equals(args.Pointer.Captured))
             this.PreviousConnector = elementUnderPointer;
+            RaiseConnectionDragEvent(elementUnderPointer,(Vector)currentPosition);
             Debug.Print("다른 Connector로 들어온 경우");
         }
 
@@ -125,7 +138,10 @@ public sealed class OutConnector : Connector, ILocatable
         if (elementUnderPointer != null && elementUnderPointer.Equals(this.PreviousConnector) && this.IsPointerPressed)
         {
             if (!this.PreviousConnector.Equals(args.Pointer.Captured))
+            {
+                RaiseConnectionDragEvent(this,(Vector)currentPosition);
                 Debug.Print("다른 Connector 에 들어 갔다가 다시 자신으로 돌아온 경우");
+            }
         }
         
         args.Handled = true;
@@ -157,6 +173,7 @@ public sealed class OutConnector : Connector, ILocatable
                 args.Handled = true;
                 PreviousConnector = null;
                 _outSideOutConnector = false;
+                RaiseConnectionCompletedEvent(okConnector);
             }
             else
             {
@@ -166,6 +183,8 @@ public sealed class OutConnector : Connector, ILocatable
                 args.Handled = true;
                 PreviousConnector = null;
                 _outSideOutConnector = false;
+                // TODO 일단  이부분도 생각해봐야 한다.
+                RaiseConnectionCompletedEvent(null);
             }
         }
     }
@@ -175,21 +194,33 @@ public sealed class OutConnector : Connector, ILocatable
     #region Methods
     
     // Raise events
-    protected override void RaiseConnectionStartEvent(object? sender)
+    /// <summary>
+    /// OutConnector 에서 Connection 시작할때 PendingConnection 에 필요한 데이터 이벤트로 전달.
+    /// </summary>
+    /// <param name="connector">전달되는 값은 OutConnector 여야 함.</param>
+    /// <param name="anchor">이벤트 발생시텀에서의 위치값. (이후 조정되어야 함.)</param>
+    protected override void RaiseConnectionStartEvent(Connector? connector, Point? anchor)
     {
-        var args = new PendingConnectionEventArgs(PendingConnectionStartedEvent, sender);
+        var args = new PendingConnectionEventArgs(PendingConnectionStartedEvent, connector, anchor);
         RaiseEvent(args);
     }
-
-    protected override void RaiseConnectionDragEvent(object? sender, Vector? offset)
+    /// <summary>
+    /// OutConnector 에서 Dragging 할때 PendingConnection 에 필요한 데이터 이벤트로 전달.
+    /// </summary>
+    /// <param name="connector">전달되는 값은 OutConnector 여야 함.</param>
+    /// <param name="offset">이동 Vector 값 (이후 조정되어야 함.)</param>
+    protected override void RaiseConnectionDragEvent(Connector? connector, Vector? offset)
     {
-        var args = new PendingConnectionEventArgs(PendingConnectionDragEvent, sender, offset);
+        var args = new PendingConnectionEventArgs(PendingConnectionDragEvent,connector, offset);
         RaiseEvent(args);
     }
-
-    protected override void RaiseConnectionCompletedEvent(object? sender)
+    /// <summary>
+    /// OutConnector 에서 Dragging 종료할때 PendingConnection 에 필요한 데이터 이벤트로 전달.
+    /// </summary>
+    /// <param name="connector">여기서는 InConnector 가 되어야 할듯 하다. 이건 좀더 생각</param>
+    protected override void RaiseConnectionCompletedEvent(Connector? connector)
     {
-        var args = new PendingConnectionEventArgs(PendingConnectionCompletedEvent, sender);
+        var args = new PendingConnectionEventArgs(PendingConnectionCompletedEvent, connector);
         RaiseEvent(args);
     }
     
