@@ -13,22 +13,35 @@
         <Setter Property="BorderBrush"
                 Value="DodgerBlue" />
         <Setter Property="Background"
-                Value="Green" />
+                Value="Transparent" />
         <Setter Property="BorderThickness"
                 Value="2"/>
+        <Setter Property="PendingConnectionTemplate">
+            <DataTemplate>
+                <!-- 연결 대기 중인 객체의 시각적 표현 정의 -->
+                <controls:PendingConnection SourceAnchor="{TemplateBinding SourceAnchor}"
+                                            TargetAnchor="{TemplateBinding TargetAnchor}"
+                                            IsVisible="{TemplateBinding IsVisiblePendingConnection}" />
+            </DataTemplate>
+        </Setter>
         <Setter Property="Template">
             <ControlTemplate>
                 <Border Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}" >
-                    <ItemsPresenter x:Name="PART_ItemsPresenter">
-                        <ItemsPresenter.ItemsPanel>
+                        BorderThickness="{TemplateBinding BorderThickness}" 
+                        Padding="10">
+                    <Canvas x:Name="PART_TopLayer">
+                        <ItemsPresenter x:Name="PART_ItemsPresenter">
+                            <ItemsPresenter.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <controls:DAGlynEditorCanvas x:Name="PART_ItemsHost" Background="Transparent"  
+                                <controls:DAGlynEditorCanvas x:Name="PART_ItemsHost"  
                                                              ViewportLocation="{TemplateBinding ViewportLocation}"/>
                             </ItemsPanelTemplate>
                         </ItemsPresenter.ItemsPanel>
-                    </ItemsPresenter>
+                        </ItemsPresenter>
+                        <ContentPresenter ContentTemplate="{TemplateBinding PendingConnectionTemplate}" 
+                                          Content="{TemplateBinding PendingConnection}" />
+                    </Canvas>
                 </Border>
             </ControlTemplate >
         </Setter>

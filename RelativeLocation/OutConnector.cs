@@ -74,7 +74,7 @@ public sealed class OutConnector : Connector, ILocatable
             args.Handled = true; // 이벤트 전파를 막음.
             // TODO 이 부분에서 마우스 위치 값은 향후 조정해야함. 지금은 그냥 PendingConnection 이 완성되는 것만 확인한다.
             // 테스트를 일단 Canvas에서 진행함으로 이렇게 했다. 테스트 끝난후 이거 반드시 수정해야한다.
-            var parent = this.GetParentVisualOfType<Canvas>();
+            var parent = this.GetParentVisualByName<Canvas>("PART_TopLayer");
             if (parent == null) return;
             var currentPosition = args.GetPosition(parent);
             RaiseConnectionStartEvent(this, currentPosition);
@@ -87,7 +87,7 @@ public sealed class OutConnector : Connector, ILocatable
         if (sender == null || !this.IsPointerPressed || this.PreviousConnector == null) return;
 
         // TODO 일단 Canvas 라고 가정한다.
-        var parent = this.GetParentVisualOfType<Canvas>();
+        var parent = this.GetParentVisualByName<Canvas>("PART_TopLayer");
         if (parent == null) return;
         var currentPosition = args.GetPosition(parent);
 
@@ -157,7 +157,7 @@ public sealed class OutConnector : Connector, ILocatable
         if (this.Equals(args.Pointer.Captured) && this.IsPointerPressed)
         {
             // TODO 일단 Canvas 라고 가정한다.
-            var parent = this.GetParentVisualOfType<Canvas>();
+            var parent = this.GetParentVisualByName<Canvas>("PART_TopLayer");
             if (parent == null) return;
             var currentPosition = args.GetPosition(parent);
 

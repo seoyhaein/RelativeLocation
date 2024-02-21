@@ -8,6 +8,7 @@ using Avalonia.Input;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Avalonia.Collections;
+using Avalonia.Markup.Xaml.Templates;
 
 namespace RelativeLocation;
 
@@ -122,6 +123,59 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         get => GetValue(DAGItemsProperty) as AvaloniaList<object> ?? new AvaloniaList<object>();
         set => SetValue(DAGItemsProperty, value);
     }
+    
+    // 추가
+    public static readonly StyledProperty<DataTemplate?> PendingConnectionTemplateProperty =
+        AvaloniaProperty.Register<DAGlynEditor, DataTemplate?>(
+            nameof(PendingConnectionTemplate));
+    
+    public DataTemplate? PendingConnectionTemplate
+    {
+        get => GetValue(PendingConnectionTemplateProperty);
+        set => SetValue(PendingConnectionTemplateProperty, value);
+    }
+    
+    public static readonly StyledProperty<object?> PendingConnectionProperty =
+        AvaloniaProperty.Register<DAGlynEditor, object?>(
+            nameof(PendingConnection));
+    
+    public object? PendingConnection
+    {
+        get => GetValue(PendingConnectionProperty);
+        set => SetValue(PendingConnectionProperty, value);
+    }
+    
+    // PendingConnection 개체와 연결할 속성들.
+    // 이 속성값들은 connector 에서 넘어온 값들을 전달해주는 역활을 한다.
+    public static readonly StyledProperty<Point> SourceAnchorProperty =
+        AvaloniaProperty.Register<DAGlynEditor, Point>(nameof(SourceAnchor));
+
+    // 연결의 끝점
+    public static readonly StyledProperty<Point> TargetAnchorProperty =
+        AvaloniaProperty.Register<DAGlynEditor, Point>(nameof(TargetAnchor));
+    
+    public Point SourceAnchor
+    {
+        get => GetValue(SourceAnchorProperty);
+        set => SetValue(SourceAnchorProperty, value);
+    }
+
+    public Point TargetAnchor
+    {
+        get => GetValue(TargetAnchorProperty);
+        set => SetValue(TargetAnchorProperty, value);
+    }
+    
+    // PendingConnection visible 설정에 사용
+    public static readonly StyledProperty<bool> IsVisiblePendingConnectionProperty =
+        AvaloniaProperty.Register<DAGlynEditor, bool>(
+            nameof(IsVisiblePendingConnection));
+
+    public bool IsVisiblePendingConnection
+    {
+        get => GetValue(IsVisiblePendingConnectionProperty);
+        set => SetValue(IsVisiblePendingConnectionProperty, value);
+    }
 
     #endregion
 
@@ -158,7 +212,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     //private bool _isPanning;
     
     // 일단 이렇게 하고 이거 나중에 static constructor 에 넣자. 
-    private PendingConnection? _pendingConnection = new PendingConnection();
+    //private PendingConnection? _pendingConnection = new PendingConnection();
 
     #endregion
 
@@ -226,7 +280,8 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
             args.Handled = true;
         }
     }
-
+    // _pendingConnection 에 직접 연결 불가능.
+    // 이거 Editor 의 속성에 연결해서 이 것을 받는 방향으로 해야 할듯한데 고민해보자.
     private void HandleConnectionStarted(object? sender, PendingConnectionEventArgs args)
     {
         // TODO 추후 최적화 하자.
@@ -234,14 +289,14 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         //if (sender is not OutConnector) return;
         if (args.Source is OutConnector)
         {
-            if (_pendingConnection == null) return;
+            /*if (_pendingConnection == null) return;
 
-            /*if (_pendingConnection.IsVisible == false)
-                _pendingConnection.IsVisible = true;*/
+            if (_pendingConnection.IsVisible == false)
+                _pendingConnection.IsVisible = true;
             if (args.Anchor.HasValue)
             {
                 _pendingConnection.SourceAnchor = args.Anchor.Value;
-            }
+            }*/
             
         }
         
@@ -250,7 +305,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
 
     private void HandleConnectionDrag(object? sender, PendingConnectionEventArgs args)
     {
-        if (args.Source is OutConnector)
+        /*if (args.Source is OutConnector)
         {
             if (_pendingConnection == null) return;
 
@@ -260,7 +315,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
             {
                 _pendingConnection.TargetAnchor = (Point)args.Offset.Value;
             }
-        }
+        }*/
     }
     
     private void HandleConnectionComplete(object? sender, PendingConnectionEventArgs args)
@@ -280,19 +335,19 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     private void InitPendingConnection()
     {
         //_pendingConnection = new PendingConnection();
-        _pendingConnection.IsVisible = false; // 초기 가시성 설정
+        //_pendingConnection.IsVisible = false; // 초기 가시성 설정
     }
 
     // TODO Unload 와 관련 및 GC 관련 해서 생각해보자.
     public void Dispose()
     {
         _disposables.Dispose();
-        if (_pendingConnection != null)
+        /*if (_pendingConnection != null)
         {
             // _pendingConnection에 대한 정리 코드
             _pendingConnection.Dispose();
             _pendingConnection = null;
-        }
+        }*/
 
         RemoveHandler(Connector.PendingConnectionStartedEvent, _connectionStartedHandler);
         RemoveHandler(Connector.PendingConnectionDragEvent, _connectionDragHandler);
@@ -307,10 +362,10 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         base.OnApplyTemplate(e);
 
         var canvas = e.NameScope.Find<DAGlynEditorCanvas>("PART_ItemsHost");
-        if (canvas is not null && _pendingConnection is not null)
+        /*if (canvas is not null && _pendingConnection is not null)
         {
             canvas.Children.Add(_pendingConnection);
-        }
+        }*/
     }
 
     // 테스트로 일단 이렇게 제작한다. 테스트 후 이후 내용 변경함.

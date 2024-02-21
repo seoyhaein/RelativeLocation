@@ -47,6 +47,22 @@ public static class Extension
         return default;
     }
     
+    public static T? GetParentVisualByName<T>(this Visual child, string name) where T : Visual
+    {
+        var current = child;
+
+        while (current != null)
+        {
+            if (current is T target && target.Name == name)
+            {
+                return target;
+            }
+            current = current.GetVisualParent();
+        }
+
+        return default;
+    }
+    
     public static T? GetElementUnderMouse<T>(this Visual container, Point pointerPosition) where T : Visual
     {
         foreach (var visual in container.GetVisualDescendants())
