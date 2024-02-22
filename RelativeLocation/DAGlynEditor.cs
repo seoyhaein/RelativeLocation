@@ -147,20 +147,20 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     
     // PendingConnection 개체와 연결할 속성들.
     // 이 속성값들은 connector 에서 넘어온 값들을 전달해주는 역활을 한다.
-    public static readonly StyledProperty<Point> SourceAnchorProperty =
-        AvaloniaProperty.Register<DAGlynEditor, Point>(nameof(SourceAnchor));
+    public static readonly StyledProperty<Point?> SourceAnchorProperty =
+        AvaloniaProperty.Register<DAGlynEditor, Point?>(nameof(SourceAnchor));
 
     // 연결의 끝점
-    public static readonly StyledProperty<Point> TargetAnchorProperty =
-        AvaloniaProperty.Register<DAGlynEditor, Point>(nameof(TargetAnchor));
+    public static readonly StyledProperty<Point?> TargetAnchorProperty =
+        AvaloniaProperty.Register<DAGlynEditor, Point?>(nameof(TargetAnchor));
     
-    public Point SourceAnchor
+    public Point? SourceAnchor
     {
         get => GetValue(SourceAnchorProperty);
         set => SetValue(SourceAnchorProperty, value);
     }
 
-    public Point TargetAnchor
+    public Point? TargetAnchor
     {
         get => GetValue(TargetAnchorProperty);
         set => SetValue(TargetAnchorProperty, value);
@@ -287,24 +287,35 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         // TODO 추후 최적화 하자.
         if (sender == null) return;
         //if (sender is not OutConnector) return;
+        
+        /*
+         * 아직 어떤 값들이 넘어오는지는 확인하지 않았다.
+         */
         if (args.Source is OutConnector)
         {
-            /*if (_pendingConnection == null) return;
+            IsVisiblePendingConnection = true;
 
-            if (_pendingConnection.IsVisible == false)
-                _pendingConnection.IsVisible = true;
             if (args.Anchor.HasValue)
             {
-                _pendingConnection.SourceAnchor = args.Anchor.Value;
-            }*/
-            
+                SourceAnchor = args.Anchor.Value;
+                if (args.Offset.HasValue)
+                    TargetAnchor = new Point(SourceAnchor.Value.X + args.Offset.Value.X,
+                        SourceAnchor.Value.Y + args.Offset.Value.Y);
+                else TargetAnchor = SourceAnchor;
+            }
+            else
+            {
+                SourceAnchor = null;
+                TargetAnchor = null;
+            }
+            args.Handled = true;
         }
         
         Debug.WriteLine("Ok!!!");
     }
 
     private void HandleConnectionDrag(object? sender, PendingConnectionEventArgs args)
-    {
+    { 
         /*if (args.Source is OutConnector)
         {
             if (_pendingConnection == null) return;
@@ -316,11 +327,63 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
                 _pendingConnection.TargetAnchor = (Point)args.Offset.Value;
             }
         }*/
+        
+        // Handled 관련해서는 일단 테스트 후 생각해보자.
+        if (IsVisiblePendingConnection)
+        {
+            //e.Handled = true;
+
+            if (args.Anchor.HasValue && args.Offset.HasValue)
+            {
+                TargetAnchor = new Point(args.Anchor.Value.X + args.Offset.Value.X, args.Anchor.Value.Y + args.Offset.Value.Y);
+            }
+            args.Handled = true;
+            
+            // TODO 아래 코드는 좀더 생각하자.
+            //TargetAnchor = new Point(e.Anchor.X + e.OffsetX, e.Anchor.Y + e.OffsetY);
+
+            /*if (Editor != null && (EnablePreview || EnableSnapping))
+            {
+                // Look for a potential connector
+                FrameworkElement? connector = GetPotentialConnector(Editor, AllowOnlyConnectors);
+
+                // Update the connector's anchor and snap to it if snapping is enabled
+                if (EnableSnapping && connector is Connector target)
+                {
+                    target.UpdateAnchor();
+                    TargetAnchor = target.Anchor;
+                }
+
+                // If it's not the same connector
+                if (connector != _previousConnector)
+                {
+                    if (_previousConnector != null)
+                    {
+                        SetIsOverElement(_previousConnector, false);
+                    }
+
+                    // And we have a connector
+                    if (connector != null)
+                    {
+                        SetIsOverElement(connector, true);
+
+                        // Update the preview target if enabled
+                        if (EnablePreview)
+                        {
+                            PreviewTarget = connector.DataContext;
+                        }
+                    }
+
+                    _previousConnector = connector;
+                }
+            }*/
+        }
     }
     
     private void HandleConnectionComplete(object? sender, PendingConnectionEventArgs args)
     {
-        
+        args.Handled = true;
+        IsVisiblePendingConnection = false;
     }
 
     #endregion
