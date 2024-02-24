@@ -109,7 +109,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         get => _isPanning;
         protected internal set => SetAndRaise(IsPanningProperty, ref _isPanning, value);
     }
-    
+
     // TODO 성능 이슈 있음.
     // 향후 Node, Connection 들이 저장될 collection 임.
     public static readonly AvaloniaProperty<AvaloniaList<object>> DAGItemsProperty =
@@ -199,6 +199,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
 
     // Panning 관련 포인터 위치 값 
     private Point _previousPointerPosition;
+
     private Point _currentPointerPosition;
     //private bool _isPanning;
 
@@ -214,7 +215,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         _connectionStartedHandler = HandleConnectionStarted;
         _connectionDragHandler = HandleConnectionDrag;
         _connectionCompleteHandler = HandleConnectionComplete;
-        
+
         Observable.FromEventPattern<PointerPressedEventArgs>(
                 h => this.PointerPressed += h,
                 h => this.PointerPressed -= h)
@@ -232,12 +233,12 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
                 h => this.PointerReleased -= h)
             .Subscribe(args => HandlePointerReleased(args.Sender, args.EventArgs))
             .DisposeWith(_disposables);
-        
+
         // 이벤트 핸들러 등록
         AddHandler(Connector.PendingConnectionStartedEvent, _connectionStartedHandler);
         AddHandler(Connector.PendingConnectionDragEvent, _connectionDragHandler);
         AddHandler(Connector.PendingConnectionCompletedEvent, _connectionCompleteHandler);
-        
+
         // 이벤트 핸들러 해제
         _disposables.Add(Disposable.Create(() =>
         {
@@ -245,7 +246,6 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
             RemoveHandler(Connector.PendingConnectionDragEvent, _connectionDragHandler);
             RemoveHandler(Connector.PendingConnectionCompletedEvent, _connectionCompleteHandler);
         }));
-        
     }
 
     private void HandlePointerPressed(object? sender, PointerPressedEventArgs args)
@@ -403,9 +403,8 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     public void Dispose()
     {
         _disposables.Dispose();
-     
     }
-
+    
     #endregion
 
     /*/// <inheritdoc />

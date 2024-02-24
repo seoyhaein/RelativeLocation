@@ -21,6 +21,8 @@ public partial class MainWindow : Window
         MainCanvas.Children.Add(_pendingConnection);*/
         
         DataContext = this;
+        // 이벤트 적용되지 않음.
+        // EditorTester.Dispose();
     }
     
     public AvaloniaList<TestConnector> ConItems { get; set; } = new AvaloniaList<TestConnector>
