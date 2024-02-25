@@ -50,7 +50,7 @@ namespace RelativeLocation
         // Fill 과 Stroke 를 동시 설정
         public static readonly StyledProperty<IBrush?> SetFillAndStrokeProperty =
             AvaloniaProperty.Register<PendingConnection, IBrush?>(nameof(SetFillAndStroke), defaultValue: null);
-        
+
         public Point SourceAnchor
         {
             get => GetValue(SourceAnchorProperty);
@@ -112,7 +112,7 @@ namespace RelativeLocation
         }
 
         #endregion
-        
+
         #region Fields
         // TODO 생각하기 readonly 가 필요할까?
         private readonly IDisposable _disposable;
