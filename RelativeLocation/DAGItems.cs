@@ -18,7 +18,7 @@ public enum DAGItemsType
 
 // Connection 과 Node 등을 다시 한번 상세히 살펴보자.
 // 일단 이녀석들을 하나의 Canvas 안에 넣을 예정임으로, 관련해서 살펴봐야 한다.
-public class DAGItemsSource
+public class DAGItems
 {
     #region Fields
 
@@ -29,7 +29,7 @@ public class DAGItemsSource
 
     #region Constructor
     // 이렇게 할지, AvaloniaList 를 따로 만들지 생각해보자.
-    public DAGItemsSource(Point location, DAGItemsType dagItemsType)
+    public DAGItems(Point location, DAGItemsType dagItemsType)
     {
         Location = location;
         DAGItemType = dagItemsType;
