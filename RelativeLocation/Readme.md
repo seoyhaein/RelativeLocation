@@ -20,8 +20,10 @@
 ~~- PendingConnection 을 Editor 의 axaml 에 넣는 방향으로 하는게 코드량이 줄어들 것 같다. PendingConnection 만들어주는 부분~~    
 ~~- 여러 Layer 잡아주는 것 구현.~~    
 - PendingConnection UI 개선
-- Connection 연결선 Layer 만들어 주기 및 속성 추가. Connection 연결선 생성 루틴 개발  
-~~- unit 테스트 에서 Dispse 관련 테스트 진행 중 dotMemory 등 사용방법 숙지가 필요 할듯하다. 계속 실폐 중~~  
+~~- Connection 연결선 Layer 만들어 주기 및 속성 추가. Connection 연결선 생성 루틴 개발~~    
+~~- unit 테스트 에서 Dispse 관련 테스트 진행 중 dotMemory 등 사용방법 숙지가 필요 할듯하다. 계속 실폐 중~~
+- 이벤트에 따라 Connection 추가하기  
+- Panning 시 Connection 의 잔상이 남는 버그 처리해야함.  
 ## 코드 정리 순서
 
 ## 벤치마킹

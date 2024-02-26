@@ -117,21 +117,9 @@ public class Node : BaseNode
     private void HandleParentControlChanged(AvaloniaPropertyChangedEventArgs e)
     {
         if (e.NewValue is DAGlynEditorCanvas editorCanvas)
-        {
             this.ParentControl = editorCanvas;
-        }
         else
-        {
-            var parentControl = this.GetParentVisualOfType<DAGlynEditorCanvas>();
-            if (parentControl != null)
-            {
-                this.ParentControl = parentControl;
-            }
-            else
-            {
-                this.ParentControl = null;
-            }
-        }
+            ParentControl = this.GetParentVisualOfType<DAGlynEditorCanvas>();
     }
 
     #endregion

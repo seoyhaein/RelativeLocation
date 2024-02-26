@@ -6,8 +6,13 @@ using Avalonia.Media;
 
 namespace RelativeLocation;
 
+// 일단 테스트로 여기서 연결을 시켜보자.
 public partial class MainWindow : Window
 {
+    /*private DAGItems node1;
+    private DAGItems node2;
+    private DAGItems node3;*/
+    
     public MainWindow()
     {
         InitializeComponent();
@@ -23,26 +28,31 @@ public partial class MainWindow : Window
         DataContext = this;
         // 이벤트 적용되지 않음.
         // EditorTester.Dispose();
+        
+       //MakeItems();
+
+        //ConItems = new AvaloniaList<DAGItems>();
+        
+        //ConItems.Add(node1);
+        //ConItems.Add(node2);
+        //ConItems.Add(node3);
+        
     }
-    
-    public AvaloniaList<TestConnector> ConItems { get; set; } = new AvaloniaList<TestConnector>
+
+    /*private void MakeItems()
     {
-        new TestConnector
-        {
-            Location = new Point(0, 0),
-            /*W = 100,
-            H = 100,
-            Br = Brushes.Red,*/
-            ConType = ConnectorType.OutConnector
-        },
-        new TestConnector
-        {
-            Location = new Point(200, 200),
-            /*W = 150,
-            H = 150,
-            Br = Brushes.Blue,*/
-            ConType = ConnectorType.InConnector
-        }
+        node1 = new DAGItems(new Point(10, 10), DAGItemsType.RunnerNode);
+        node2 = new DAGItems(new Point(20, 20), DAGItemsType.RunnerNode);
+        node3 = new DAGItems(new Point(30, 30), DAGItemsType.RunnerNode);
+    }*/
+
+    //public AvaloniaList<DAGItems> ConItems { get; set; }
+
+    public AvaloniaList<DAGItems> ConItems { get; set; } = new AvaloniaList<DAGItems>
+    {
+        new DAGItems(new Point(10, 10), DAGItemsType.RunnerNode),
+        new DAGItems(new Point(20, 20), DAGItemsType.RunnerNode),
+        new DAGItems(new Point(30, 30), DAGItemsType.RunnerNode)
     };
 }
 

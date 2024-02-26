@@ -36,8 +36,7 @@ namespace RelativeLocation
         Circuit,
         Quadratic,
     }
-
-
+    
     /// <summary>
     /// 연결이 지향하는 방향.
     /// </summary>
@@ -76,14 +75,14 @@ namespace RelativeLocation
 
     public class Connection : Shape
     {
-        #region feilds
+        #region Feilds
 
         private const double BaseOffset = 100d;
         private const double OffsetGrowthRate = 25d;
         private const double Degrees = Math.PI / 180.0d;
-        private static readonly Size DefaultArrowSize = new Size(7, 6);
-        private static readonly Vector ZeroVector = new(0d, 0d);
-
+        private const double DefaultSpacing = 30d;
+        private const double DefaultSAngle = 45d;
+        
         #endregion
 
         #region Dependency Properties
@@ -110,16 +109,16 @@ namespace RelativeLocation
             AvaloniaProperty.Register<Connection, ArrowHeadEnds>(nameof(ArrowEnds), ArrowHeadEnds.End);
 
         public static readonly StyledProperty<double> SpacingProperty =
-            AvaloniaProperty.Register<Connection, double>(nameof(Spacing), 30d);
+            AvaloniaProperty.Register<Connection, double>(nameof(Spacing), DefaultSpacing);
 
         public static readonly StyledProperty<Size> ArrowSizeProperty =
-            AvaloniaProperty.Register<Connection, Size>(nameof(ArrowSize), defaultValue: DefaultArrowSize);
+            AvaloniaProperty.Register<Connection, Size>(nameof(ArrowSize), defaultValue: Constants.DefaultArrowSize);
 
         public static readonly StyledProperty<LineShape> LineShapeModeProperty =
             AvaloniaProperty.Register<Connection, LineShape>(nameof(LineShapeMode), LineShape.Line);
 
         public static readonly StyledProperty<double> AngleProperty =
-            AvaloniaProperty.Register<Connection, double>(nameof(Angle), 45d);
+            AvaloniaProperty.Register<Connection, double>(nameof(Angle), DefaultSAngle);
 
         public double Angle
         {
@@ -194,6 +193,8 @@ namespace RelativeLocation
         static Connection()
         {
             // 초기값 설정
+            // 이건 추후 생각하자. 이렇게 전역적으로 만들어줘야 할까? 이렇게 하는게 맞을까?
+            // 아직까지는 바뀌어야 하는 가능성이 적긴한데 고민이 되긴하다.
             StrokeThicknessProperty.OverrideDefaultValue<Connection>(3);
             StrokeProperty.OverrideDefaultValue<Connection>(Brushes.DodgerBlue);
             FillProperty.OverrideDefaultValue<Connection>(Brushes.DodgerBlue);
@@ -212,6 +213,17 @@ namespace RelativeLocation
                 AngleProperty,
                 LineShapeModeProperty
             );
+        }
+
+        public Connection()
+        {
+        }
+
+        // 추가
+        public Connection(Point start, Point end)
+        {
+            Source = start;
+            Target = end;
         }
 
         #endregion
@@ -302,19 +314,6 @@ namespace RelativeLocation
             return new Point(target.X, source.Y - slopeHeight);
         }
 
-        // 외부에서 만들어주는 메서드.
-        // 전체적으로 코드 정리 필요.
-        /*public void DrawConnection(Point source, Point target, double strokeThickness, IBrush color, double spacing)
-        {
-            Source = source;
-            Target = target;
-            Spacing = spacing;
-            
-            StrokeThicknessProperty.OverrideDefaultValue<Connection>(strokeThickness);
-            StrokeProperty.OverrideDefaultValue<Connection>(color);
-            FillProperty.OverrideDefaultValue<Connection>(color);
-        }*/
-
         private void DrawArrowGeometry(IGeometryContext context, Point source, Point target,
             ConnectionDirection arrowDirection = ConnectionDirection.Forward)
         {
@@ -377,7 +376,7 @@ namespace RelativeLocation
                     GetCircleModeOffset(delta2, TargetOffset)),
                 ConnectionOffsetMode.Edge => (GetEdgeModeOffset(delta, SourceOffset),
                     GetEdgeModeOffset(delta2, TargetOffset)),
-                ConnectionOffsetMode.None => (ZeroVector, ZeroVector),
+                ConnectionOffsetMode.None => (Constants.ZeroVector, Constants.ZeroVector),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
@@ -420,7 +419,7 @@ namespace RelativeLocation
         }
 
         #endregion
-        
+
         /// <inheritdoc />
         protected override Geometry CreateDefiningGeometry()
         {

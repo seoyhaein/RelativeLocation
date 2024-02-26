@@ -1,5 +1,4 @@
 using System;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
@@ -102,7 +101,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
             nameof(IsPanning),
             o => o.IsPanning);
 
-    private bool _isPanning = false;
+    private bool _isPanning;
 
     public bool IsPanning
     {
@@ -181,10 +180,11 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
 
     public DAGlynEditor()
     {
-        ItemsSource = MyItems;
+        var dag = new DAG();
+        ItemsSource = dag.DAGItemsSource;
         InitializeSubscriptions();
+        // TODO 아래 값은 주석 처리할지 고민중
         SetValue(DAGItemsProperty, new AvaloniaList<object>());
-        // TODO 이거 확인하자. 꼭~~
         this.Unloaded += (_, _) => this.Dispose();
     }
 
@@ -404,7 +404,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     {
         _disposables.Dispose();
     }
-    
+
     #endregion
 
     /*/// <inheritdoc />
@@ -417,21 +417,20 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     /// <inheritdoc />
     protected override Control CreateContainerForItemOverride(object? item, int index, object? recycleKey)
     {
-        var testConnector = item as TestConnector;
-        if (testConnector != null)
+        // 일단 반드시 DAGItems 라고 가정한다.
+        if (item is DAGItems dagItems)
         {
-            switch (testConnector.ConType)
-            {
-                case ConnectorType.OutConnector:
-                    return new OutConnector();
-                case ConnectorType.InConnector:
-                    return new InConnector();
-                default:
-                    break;
-            }
+            if (dagItems.DAGItemType == DAGItemsType.RunnerNode)
+                if (dagItems.Location.HasValue)
+                    return new Node(dagItems.Location.Value);
+            
+            if (dagItems.DAGItemType == DAGItemsType.Connection)
+                if (dagItems.Start.HasValue && dagItems.End.HasValue)
+                    return new Connection(dagItems.Start.Value, dagItems.End.Value);
         }
-
-        return new Node();
+        
+        var emptyControl = new ContentControl { IsVisible = false };
+        return emptyControl;
     }
 
     // 컨테이너 설정
@@ -440,26 +439,14 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     /// <inheritdoc />
     protected override void PrepareContainerForItemOverride(Control container, object? item, int index)
     {
-        if (container is Node myContainer)
+        /*if (container is Node myContainer)
             myContainer.Location = new Point(10, 10);
 
         if (container is InConnector inConnector && item is TestConnector inCon)
             inConnector.Location = inCon.Location;
 
         if (container is OutConnector outConnector && item is TestConnector outCon)
-            outConnector.Location = outCon.Location;
+            outConnector.Location = outCon.Location;*/
     }
-
-    #region Tests
-
-    public ObservableCollection<Node> MyItems { get; set; } = new ObservableCollection<Node>
-    {
-        new Node()
-    };
-
-    // TODO 이걸로 속성하나 만들어야 할듯하다.
-    // 그리고 여기에 Node 들을 추가하는 메서드들을 만들자.
-    public AvaloniaList<Node> NodeItems { get; set; } = new AvaloniaList<Node>();
-
-    #endregion
+    
 }
