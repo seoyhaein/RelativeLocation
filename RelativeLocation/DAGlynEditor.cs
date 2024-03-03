@@ -111,7 +111,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
 
     // TODO 성능 이슈 있음.
     // 향후 Node, Connection 들이 저장될 collection 임.
-    public static readonly AvaloniaProperty<AvaloniaList<object>> DAGItemsProperty =
+    /*public static readonly AvaloniaProperty<AvaloniaList<object>> DAGItemsProperty =
         AvaloniaProperty.Register<DAGlynEditor, AvaloniaList<object>>(
             nameof(DAGItems));
 
@@ -119,7 +119,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     {
         get => GetValue(DAGItemsProperty) as AvaloniaList<object> ?? new AvaloniaList<object>();
         set => SetValue(DAGItemsProperty, value);
-    }
+    }*/
 
     // 추가
     public static readonly StyledProperty<DataTemplate?> PendingConnectionTemplateProperty =
@@ -180,11 +180,13 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
 
     public DAGlynEditor()
     {
-        var dag = new DAG();
+        // TODO 생각하기
+        // 여기서 인스턴스를 생성하면 좋을지 생각하자. 일단 이렇게 넣는다.
+        //var dag = new DAG();
         ItemsSource = dag.DAGItemsSource;
         InitializeSubscriptions();
         // TODO 아래 값은 주석 처리할지 고민중
-        SetValue(DAGItemsProperty, new AvaloniaList<object>());
+        //SetValue(DAGItemsProperty, new AvaloniaList<object>());
         this.Unloaded += (_, _) => this.Dispose();
     }
 
@@ -196,6 +198,8 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     private EventHandler<PendingConnectionEventArgs>? _connectionStartedHandler;
     private EventHandler<PendingConnectionEventArgs>? _connectionDragHandler;
     private EventHandler<PendingConnectionEventArgs>? _connectionCompleteHandler;
+
+    private DAG dag = new DAG();
 
     // Panning 관련 포인터 위치 값 
     private Point _previousPointerPosition;
@@ -383,9 +387,15 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
             }*/
         }
     }
-
+    // 정확한 connector 에서 release 했다면 선을 연결 시켜주면 된다.
     private void HandleConnectionComplete(object? sender, PendingConnectionEventArgs args)
     {
+        // 테스트 용으로 집어 넣었음.
+        var start = new Point(20, 20);
+        var end = new Point(200, 200);
+        
+        dag.AddDAGItem(start, end);
+        
         args.Handled = true;
         IsVisiblePendingConnection = false;
     }
@@ -414,6 +424,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     }*/
 
     // 테스트로 일단 이렇게 제작한다. 테스트 후 이후 내용 변경함.
+    // TODO 여기서 runtime 으로 item 이 들어갈때도 적용되는지 파악해야함.
     /// <inheritdoc />
     protected override Control CreateContainerForItemOverride(object? item, int index, object? recycleKey)
     {
@@ -423,12 +434,12 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
             if (dagItems.DAGItemType == DAGItemsType.RunnerNode)
                 if (dagItems.Location.HasValue)
                     return new Node(dagItems.Location.Value);
-            
+
             if (dagItems.DAGItemType == DAGItemsType.Connection)
                 if (dagItems.Start.HasValue && dagItems.End.HasValue)
                     return new Connection(dagItems.Start.Value, dagItems.End.Value);
         }
-        
+
         var emptyControl = new ContentControl { IsVisible = false };
         return emptyControl;
     }
@@ -448,5 +459,4 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         if (container is OutConnector outConnector && item is TestConnector outCon)
             outConnector.Location = outCon.Location;*/
     }
-    
 }

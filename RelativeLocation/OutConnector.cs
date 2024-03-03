@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 
 namespace RelativeLocation;
 
@@ -27,6 +28,7 @@ public sealed class OutConnector : Connector, ILocatable
 
     #region Dependency Properties
 
+    // 아래 두개의 속성은 필요없을듯 하다.
     public static readonly StyledProperty<Point> LocationProperty =
         AvaloniaProperty.Register<BaseNode, Point>(nameof(Location), Constants.ZeroPoint);
 
@@ -34,6 +36,15 @@ public sealed class OutConnector : Connector, ILocatable
     {
         get => GetValue(LocationProperty);
         set => SetValue(LocationProperty, value);
+    }
+    
+    public static readonly StyledProperty<Point> OutPointProperty =
+        AvaloniaProperty.Register<BaseNode, Point>(nameof(OutPoint), Constants.ZeroPoint);
+
+    public Point OutPoint
+    {
+        get => GetValue(OutPointProperty);
+        set => SetValue(OutPointProperty, value);
     }
 
     #endregion
@@ -43,6 +54,12 @@ public sealed class OutConnector : Connector, ILocatable
     static OutConnector()
     {
         FillProperty.OverrideDefaultValue<OutConnector>(BrushResources.OutConnectorDefaultFill);
+    }
+
+    public OutConnector()
+    {
+        /*var point =  FindOutPoint();
+        Debug.WriteLine(point.ToString());*/
     }
 
     #endregion
@@ -76,8 +93,13 @@ public sealed class OutConnector : Connector, ILocatable
             // 테스트를 일단 Canvas에서 진행함으로 이렇게 했다. 테스트 끝난후 이거 반드시 수정해야한다.
             var parent = this.GetParentVisualByName<Canvas>("PART_TopLayer");
             if (parent == null) return;
-            var currentPosition = args.GetPosition(parent);
-            RaiseConnectionStartEvent(this, currentPosition);
+            
+            // TODO 이제 currentPosition 이 될 수 없다.
+            // Node 로 부터 받은 ConnectionPoint 가 되어야 한다.
+            //var currentPosition = args.GetPosition(parent);
+            //RaiseConnectionStartEvent(this, currentPosition);
+            
+            RaiseConnectionStartEvent(this, Anchor);
         }
     }
     // TODO  이제 Connector 는 부모 Layout 의 좌표체계를 가져와야 하기 때문에
@@ -261,7 +283,33 @@ public sealed class OutConnector : Connector, ILocatable
         };
         RaiseEvent(args);
     }*/
+    
+    // 이렇게 하지 말고 차라리 그냥 ConnectionPoint 를 넘기자.
+    protected override Point FindConnectionPoint()
+    {
+        // 부모의 위치 값
+        var x = Anchor.X;
+        var y = Anchor.Y;
+        
+        return base.FindConnectionPoint();
+    }
+
+    private Point FindOutPoint()
+    {
+        if (Anchor == null)
+            return new Point(10,10);
+        return new Point(0, 0);
+    }
 
     #endregion
+    
+    /// <inheritdoc />
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
+        base.OnApplyTemplate(e);
+        
+        Debug.WriteLine(Anchor.ToString());
+      
+    }
     
 }

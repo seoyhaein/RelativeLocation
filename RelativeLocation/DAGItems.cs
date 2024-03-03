@@ -21,41 +21,37 @@ public enum DAGItemsType
 public class DAGItems
 {
     #region Fields
-    
+
     // 일단 넣어 둠.
     // 인스턴스를 구분하기 좋게 하기위해서 Id 를 둠. 향후 삭제 및 재활용도를 높이기 위해서.
     public int Id { get; set; }
+
     public Point? Location { get; set; }
+
     // TODO 이름은 추후 수정
     public Point? Start { get; set; }
     public Point? End { get; set; }
-    
+
     public DAGItemsType DAGItemType { get; set; }
 
     #endregion
 
     #region Constructor
+
     // 이렇게 할지, AvaloniaList 를 따로 만들지 생각해보자.
     public DAGItems(Point? location, DAGItemsType dagItemsType)
     {
         Location = location;
         DAGItemType = dagItemsType;
-        
-        // TODO connection 에 관련된 정보도 가지고 있어야 한다.
-        // 일단 연결 시키는 것만 관심을 가진다. 이후 확장해나간다.
     }
-    
+
     // connection 을 위해서
     public DAGItems(Point? start, Point? end)
     {
         Start = start;
         End = end;
         DAGItemType = DAGItemsType.Connection;
-        
-        // TODO connection 에 관련된 정보도 가지고 있어야 한다.
-        // 일단 연결 시키는 것만 관심을 가진다. 이후 확장해나간다.
     }
 
     #endregion
-   
 }

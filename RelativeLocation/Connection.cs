@@ -36,7 +36,7 @@ namespace RelativeLocation
         Circuit,
         Quadratic,
     }
-    
+
     /// <summary>
     /// 연결이 지향하는 방향.
     /// </summary>
@@ -82,7 +82,7 @@ namespace RelativeLocation
         private const double Degrees = Math.PI / 180.0d;
         private const double DefaultSpacing = 30d;
         private const double DefaultSAngle = 45d;
-        
+
         #endregion
 
         #region Dependency Properties
@@ -331,6 +331,21 @@ namespace RelativeLocation
             context.EndFigure(true);
         }
 
+        private void DrawRectGeometry(IGeometryContext context, Point source)
+        {
+            // TODO 사각형의 크기를 정의 (예: 10x10 픽셀)
+            double size = 10;
+            Rect rect = new Rect(source.X - size / 2, source.Y - size / 2, size, size);
+
+            // 사각형 그리기
+            context.BeginFigure(rect.TopLeft, isFilled: true);
+            context.LineTo(new Point(rect.TopRight.X, rect.TopRight.Y));
+            context.LineTo(new Point(rect.BottomRight.X, rect.BottomRight.Y));
+            context.LineTo(new Point(rect.BottomLeft.X, rect.BottomLeft.Y));
+            context.LineTo(rect.TopLeft);
+            context.EndFigure(true);
+        }
+
         private (Point From, Point To) GetArrowHeadPoints(Point source, Point target,
             ConnectionDirection arrowDirection)
         {
@@ -432,6 +447,14 @@ namespace RelativeLocation
             var source = Source + sourceOffset;
             var target = Target + targetOffset;
 
+            // TODO source와 target이 같은 경우, 작은 사각형을 그림
+            // 일단 사각형을 그렸는데, 없어도 상관없다면 DrawRectGeometry 주석처리 하면 됨.
+            if (source == target)
+            {
+                DrawRectGeometry(context, source);
+                return geometry;
+            }
+
             // 선 그리기
             DrawLineGeometry(context, source, target);
 
@@ -441,13 +464,21 @@ namespace RelativeLocation
                 switch (ArrowEnds)
                 {
                     case ArrowHeadEnds.Start:
+                    {
                         DrawArrowGeometry(context, source, target, ConnectionDirection.Backward);
-
+                        // TODO 일단 사각형을 그렸는데, 없어도 상관없다면 DrawRectGeometry 주석처리 하면 됨.
+                        DrawRectGeometry(context, source);
                         break;
+                    }
+
                     case ArrowHeadEnds.End:
+                    {
                         DrawArrowGeometry(context, source, target, ConnectionDirection.Forward);
-
+                        // TODO 일단 사각형을 그렸는데, 없어도 상관없다면 DrawRectGeometry 주석처리 하면 됨.
+                        DrawRectGeometry(context, source);
                         break;
+                    }
+
                     case ArrowHeadEnds.Both:
                         DrawArrowGeometry(context, source, target, ConnectionDirection.Forward);
                         DrawArrowGeometry(context, target, source, ConnectionDirection.Backward);

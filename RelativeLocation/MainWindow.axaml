@@ -32,6 +32,8 @@
         
         <controls:DAGlynEditor x:Name="EditorTester" Width="800" Height="450" 
                                Canvas.Top="0" Canvas.Left="0" />
+        
+        <controls:Connection SourceOffset="210,72" Source="210,72" TargetOffset="210,72" Target="210,72" />
                                
     </Canvas>
 </Window>

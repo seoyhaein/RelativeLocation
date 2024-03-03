@@ -4,6 +4,7 @@ using System.Reactive.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 
 namespace RelativeLocation;
 
@@ -21,6 +22,28 @@ public class BaseNode : ContentControl, IDisposable, ILocatable
         set => SetValue(LocationProperty, value);
     }
     
+    public static readonly StyledProperty<Point?> InAnchorProperty =
+        AvaloniaProperty.Register<BaseNode, Point?>(nameof(InAnchor));
+    
+    /// <summary>
+    /// StartNode는 OutAnchor 가 있고 EndNode 는 InAnchor 가 있다.
+    /// 일반 Node 는 OutAnchor 와 InAnchor 가 있다. 
+    /// </summary>
+    public Point? InAnchor
+    {
+        get => GetValue(InAnchorProperty);
+        set => SetValue(InAnchorProperty, value);
+    }
+    
+    public static readonly StyledProperty<Point?> OutAnchorProperty =
+        AvaloniaProperty.Register<BaseNode, Point?>(nameof(OutAnchor));
+
+    public Point? OutAnchor
+    {
+        get => GetValue(OutAnchorProperty);
+        set => SetValue(OutAnchorProperty, value);
+    }
+    
     #endregion
 
     #region Fields
@@ -35,6 +58,9 @@ public class BaseNode : ContentControl, IDisposable, ILocatable
     protected Point InitialPointerPosition;
     protected Point PreviousPointerPosition;
     protected Point CurrentPointerPosition;
+    
+    // TODO 생각하기
+    protected Point FinalPosition;
 
     #endregion
 
@@ -68,6 +94,12 @@ public class BaseNode : ContentControl, IDisposable, ILocatable
                 h => this.PointerReleased -= h)
             .Subscribe(args => HandlePointerReleased(args.Sender, args.EventArgs))
             .DisposeWith(_disposables);
+        
+        Observable.FromEventPattern<RoutedEventArgs>(
+                h => this.Loaded += h,
+                h => this.Loaded -= h)
+            .Subscribe(args => HandleLoaded(args.Sender, args.EventArgs))
+            .DisposeWith(_disposables);
     }
 
     protected virtual void HandlePointerPressed(object? sender, PointerPressedEventArgs args)
@@ -79,6 +111,10 @@ public class BaseNode : ContentControl, IDisposable, ILocatable
     }
 
     protected virtual void HandlePointerReleased(object? sender, PointerReleasedEventArgs args)
+    {
+    }
+    
+    protected virtual void HandleLoaded(object? sender, RoutedEventArgs args)
     {
     }
 

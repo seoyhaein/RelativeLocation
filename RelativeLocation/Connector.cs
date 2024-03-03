@@ -60,8 +60,7 @@ public class Connector : TemplatedControl, IDisposable
     #endregion
 
     #region Fields & Dependency Properties
-
-    // TODO Anchor 가 필요한지 일단 모르겠지만 넣어둠.
+    
     public static readonly StyledProperty<Point> AnchorProperty =
         AvaloniaProperty.Register<Connector, Point>(nameof(Anchor));
 
@@ -70,7 +69,7 @@ public class Connector : TemplatedControl, IDisposable
         get => GetValue(AnchorProperty);
         set => SetValue(AnchorProperty, value);
     }
-
+    
     // 추가
     public static readonly StyledProperty<IBrush?> FillProperty =
         AvaloniaProperty.Register<Connector, IBrush?>(nameof(Fill));
@@ -121,7 +120,7 @@ public class Connector : TemplatedControl, IDisposable
     protected virtual void HandlePointerReleased(object? sender, PointerReleasedEventArgs args)
     {
     }
-
+   
     protected virtual void RaiseConnectionStartEvent(Connector? connector, Point? anchor)
     {
     }
@@ -132,6 +131,11 @@ public class Connector : TemplatedControl, IDisposable
 
     protected virtual void RaiseConnectionCompletedEvent(Connector? connector)
     {
+    }
+
+    protected virtual Point FindConnectionPoint()
+    {
+        return default;
     }
 
     #endregion
