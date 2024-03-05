@@ -125,19 +125,14 @@ public class Connector : TemplatedControl, IDisposable
     {
     }
     
-    protected virtual void RaiseConnectionDragEvent(Connector? connector, Vector? offset)
+    protected virtual void RaiseConnectionDragEvent(Connector? connector, Point? anchor ,Vector? offset)
     {
     }
 
-    protected virtual void RaiseConnectionCompletedEvent(Connector? connector)
+    protected virtual void RaiseConnectionCompletedEvent(Connector? connector, Point? inAnchor, Point? outAnchor)
     {
     }
-
-    protected virtual Point FindConnectionPoint()
-    {
-        return default;
-    }
-
+    
     #endregion
 
     #region Methods

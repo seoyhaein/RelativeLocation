@@ -6,7 +6,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using Avalonia.Collections;
+using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml.Templates;
 
 namespace RelativeLocation;
@@ -25,7 +25,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         set => SetValue(ViewportLocationProperty, value);
     }
 
-    public static readonly DirectProperty<DAGlynEditor, Point> MouseLocationProperty =
+    /*public static readonly DirectProperty<DAGlynEditor, Point> MouseLocationProperty =
         AvaloniaProperty.RegisterDirect<DAGlynEditor, Point>(
             nameof(MouseLocation),
             o => o.MouseLocation);
@@ -36,7 +36,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     {
         get => _mouseLocation;
         private set => SetAndRaise(MouseLocationProperty, ref _mouseLocation, value);
-    }
+    }*/
 
     public static readonly StyledProperty<bool> DisablePanningProperty =
         AvaloniaProperty.Register<DAGlynEditor, bool>(nameof(DisablePanning));
@@ -142,12 +142,9 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         set => SetValue(PendingConnectionProperty, value);
     }
 
-    // PendingConnection 개체와 연결할 속성들.
-    // 이 속성값들은 connector 에서 넘어온 값들을 전달해주는 역활을 한다.
     public static readonly StyledProperty<Point?> SourceAnchorProperty =
         AvaloniaProperty.Register<DAGlynEditor, Point?>(nameof(SourceAnchor));
 
-    // 연결의 끝점
     public static readonly StyledProperty<Point?> TargetAnchorProperty =
         AvaloniaProperty.Register<DAGlynEditor, Point?>(nameof(TargetAnchor));
 
@@ -180,13 +177,8 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
 
     public DAGlynEditor()
     {
-        // TODO 생각하기
-        // 여기서 인스턴스를 생성하면 좋을지 생각하자. 일단 이렇게 넣는다.
-        //var dag = new DAG();
         ItemsSource = dag.DAGItemsSource;
         InitializeSubscriptions();
-        // TODO 아래 값은 주석 처리할지 고민중
-        //SetValue(DAGItemsProperty, new AvaloniaList<object>());
         this.Unloaded += (_, _) => this.Dispose();
     }
 
@@ -200,13 +192,15 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     private EventHandler<PendingConnectionEventArgs>? _connectionCompleteHandler;
 
     private DAG dag = new DAG();
+    private bool _isLoaded = true;
+    private Canvas? topLayer;
+    private DAGlynEditorCanvas? editorCanvas;
 
     // Panning 관련 포인터 위치 값 
     private Point _previousPointerPosition;
 
     private Point _currentPointerPosition;
     //private bool _isPanning;
-
     // 일단 이렇게 하고 이거 나중에 static constructor 에 넣자. 
     //private PendingConnection? _pendingConnection = new PendingConnection();
 
@@ -236,6 +230,12 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
                 h => this.PointerReleased += h,
                 h => this.PointerReleased -= h)
             .Subscribe(args => HandlePointerReleased(args.Sender, args.EventArgs))
+            .DisposeWith(_disposables);
+
+        Observable.FromEventPattern<RoutedEventArgs>(
+                h => this.Loaded += h,
+                h => this.Loaded -= h)
+            .Subscribe(args => HandleLoaded(args.Sender, args.EventArgs))
             .DisposeWith(_disposables);
 
         // 이벤트 핸들러 등록
@@ -284,18 +284,9 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
             args.Handled = true;
         }
     }
-
-    // _pendingConnection 에 직접 연결 불가능.
-    // 이거 Editor 의 속성에 연결해서 이 것을 받는 방향으로 해야 할듯한데 고민해보자.
+    
     private void HandleConnectionStarted(object? sender, PendingConnectionEventArgs args)
     {
-        // TODO 추후 최적화 하자.
-        if (sender == null) return;
-        //if (sender is not OutConnector) return;
-
-        /*
-         * 아직 어떤 값들이 넘어오는지는 확인하지 않았다.
-         */
         if (args.Source is OutConnector)
         {
             IsVisiblePendingConnection = true;
@@ -322,27 +313,12 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
 
     private void HandleConnectionDrag(object? sender, PendingConnectionEventArgs args)
     {
-        /*if (args.Source is OutConnector)
-        {
-            if (_pendingConnection == null) return;
-
-            if (_pendingConnection.IsVisible == false)
-                _pendingConnection.IsVisible = true;
-            if (args.Offset.HasValue)
-            {
-                _pendingConnection.TargetAnchor = (Point)args.Offset.Value;
-            }
-        }*/
-
-        // Handled 관련해서는 일단 테스트 후 생각해보자.
+        // TODO 버그 있음. 
         if (IsVisiblePendingConnection)
         {
-            //e.Handled = true;
-
             if (args.Offset.HasValue)
             {
-                TargetAnchor = new Point(SourceAnchor.Value.X + args.Offset.Value.X,
-                    SourceAnchor.Value.Y + args.Offset.Value.Y);
+                TargetAnchor = new Point(args.Offset.Value.X, args.Offset.Value.Y);
             }
 
             args.Handled = true;
@@ -387,28 +363,51 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
             }*/
         }
     }
-    // 정확한 connector 에서 release 했다면 선을 연결 시켜주면 된다.
+    
     private void HandleConnectionComplete(object? sender, PendingConnectionEventArgs args)
     {
-        // 테스트 용으로 집어 넣었음.
-        var start = new Point(20, 20);
-        var end = new Point(200, 200);
-        
-        dag.AddDAGItem(start, end);
-        
+        if (args.SourceConnector == null || args.InAnchor == null || args.OutAnchor == null)
+        {
+            args.Handled = true;
+            IsVisiblePendingConnection = false;
+            return;
+        }
+
+        dag.AddDAGItem(args.InAnchor, args.OutAnchor);
+
         args.Handled = true;
         IsVisiblePendingConnection = false;
+    }
+
+    // TODO 이건 일단 어떻할지 생각해본다.
+    private void HandleLoaded(object? sender, RoutedEventArgs args)
+    {
+        if (_isLoaded)
+        {
+            editorCanvas = this.GetChildControlByName<DAGlynEditorCanvas>("PART_ItemsHost");
+            if (editorCanvas == null)
+                throw new InvalidOperationException("PART_ItemsHost cannot be found in the template.");
+
+            // 두 컨트롤이 모두 찾아진 후 로직 수행
+            if (topLayer != null && editorCanvas != null)
+            {
+                bool isMatch = topLayer.IsCoordinateSystemMatch(editorCanvas);
+                if (!isMatch)
+                {
+                    Extension.WriteErrorsToFile(
+                        "The coordinate systems do not match, causing rendering issues in the application.");
+                }
+            }
+
+            // 한번만 실행되게 만드는 flag
+            _isLoaded = false;
+        }
     }
 
     #endregion
 
     #region Methods
-
-    private void UpdateMouseLocation(PointerEventArgs args)
-    {
-        MouseLocation = args.GetPosition(this);
-    }
-
+    
     // TODO Unload 와 관련 및 GC 관련 해서 생각해보자.
     public void Dispose()
     {
@@ -417,14 +416,16 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
 
     #endregion
 
-    /*/// <inheritdoc />
+    /// <inheritdoc />
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
         base.OnApplyTemplate(e);
-    }*/
 
-    // 테스트로 일단 이렇게 제작한다. 테스트 후 이후 내용 변경함.
-    // TODO 여기서 runtime 으로 item 이 들어갈때도 적용되는지 파악해야함.
+        topLayer = e.NameScope.Find<Canvas>("PART_TopLayer");
+        if (topLayer == null)
+            throw new InvalidOperationException("PART_TopLayer cannot be found in the template.");
+    }
+
     /// <inheritdoc />
     protected override Control CreateContainerForItemOverride(object? item, int index, object? recycleKey)
     {

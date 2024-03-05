@@ -37,15 +37,6 @@ public sealed class OutConnector : Connector, ILocatable
         get => GetValue(LocationProperty);
         set => SetValue(LocationProperty, value);
     }
-    
-    public static readonly StyledProperty<Point> OutPointProperty =
-        AvaloniaProperty.Register<BaseNode, Point>(nameof(OutPoint), Constants.ZeroPoint);
-
-    public Point OutPoint
-    {
-        get => GetValue(OutPointProperty);
-        set => SetValue(OutPointProperty, value);
-    }
 
     #endregion
 
@@ -54,12 +45,6 @@ public sealed class OutConnector : Connector, ILocatable
     static OutConnector()
     {
         FillProperty.OverrideDefaultValue<OutConnector>(BrushResources.OutConnectorDefaultFill);
-    }
-
-    public OutConnector()
-    {
-        /*var point =  FindOutPoint();
-        Debug.WriteLine(point.ToString());*/
     }
 
     #endregion
@@ -89,19 +74,12 @@ public sealed class OutConnector : Connector, ILocatable
             this.PreviousConnector = this;
             this.IsPointerPressed = true; // 마우스 눌림 상태 설정
             args.Handled = true; // 이벤트 전파를 막음.
-            // TODO 이 부분에서 마우스 위치 값은 향후 조정해야함. 지금은 그냥 PendingConnection 이 완성되는 것만 확인한다.
-            // 테스트를 일단 Canvas에서 진행함으로 이렇게 했다. 테스트 끝난후 이거 반드시 수정해야한다.
             var parent = this.GetParentVisualByName<Canvas>("PART_TopLayer");
             if (parent == null) return;
-            
-            // TODO 이제 currentPosition 이 될 수 없다.
-            // Node 로 부터 받은 ConnectionPoint 가 되어야 한다.
-            //var currentPosition = args.GetPosition(parent);
-            //RaiseConnectionStartEvent(this, currentPosition);
-            
             RaiseConnectionStartEvent(this, Anchor);
         }
     }
+
     // TODO  이제 Connector 는 부모 Layout 의 좌표체계를 가져와야 하기 때문에
     //  var parent = this.GetParentVisualOfType<Canvas>(); 이부분 고쳐 줘야 한다. 
     protected override void HandlePointerMoved(object? sender, PointerEventArgs args)
@@ -114,7 +92,7 @@ public sealed class OutConnector : Connector, ILocatable
         var currentPosition = args.GetPosition(parent);
 
         // 마우스 이동중 새로운 Connector 에 들어가면 null 이 아님.
-        var elementUnderPointer = parent.GetElementUnderMouse<Connector>(currentPosition);
+        var elementUnderPointer = parent.GetControlUnderPointer<Connector>(currentPosition);
 
         // 한번이라도 OutConnector 를 나가면.
 
@@ -125,7 +103,8 @@ public sealed class OutConnector : Connector, ILocatable
             if (this.PreviousConnector.Equals(args.Pointer.Captured) && this.Equals(args.Pointer.Captured))
             {
                 _outSideOutConnector = true;
-                RaiseConnectionDragEvent(this,(Vector)currentPosition);
+                // TODO 여기 버그 있음. 좌표계
+                RaiseConnectionDragEvent(this, Anchor, (Vector)currentPosition);
                 Debug.Print("정상 Moved");
             }
         }
@@ -136,13 +115,13 @@ public sealed class OutConnector : Connector, ILocatable
         {
             if (_outSideOutConnector && this.PreviousConnector.Equals(args.Pointer.Captured))
             {
-                RaiseConnectionDragEvent(this,(Vector)currentPosition);
+                RaiseConnectionDragEvent(this, Anchor, (Vector)currentPosition);
                 Debug.Print("그냥 외곽에 있다가 다시 들어간 경우");
             }
 
             if (!_outSideOutConnector && this.PreviousConnector.Equals(args.Pointer.Captured))
             {
-                RaiseConnectionDragEvent(this,(Vector)currentPosition);
+                RaiseConnectionDragEvent(this, Anchor, (Vector)currentPosition);
                 Debug.Print("OutConnector 내에서의 마우스 이동.");
             }
         }
@@ -152,7 +131,7 @@ public sealed class OutConnector : Connector, ILocatable
         {
             //if (this.PreviousConnector.Equals(args.Pointer.Captured))
             this.PreviousConnector = elementUnderPointer;
-            RaiseConnectionDragEvent(elementUnderPointer,(Vector)currentPosition);
+            RaiseConnectionDragEvent(this, Anchor, (Vector)currentPosition);
             Debug.Print("다른 Connector로 들어온 경우");
         }
 
@@ -161,14 +140,14 @@ public sealed class OutConnector : Connector, ILocatable
         {
             if (!this.PreviousConnector.Equals(args.Pointer.Captured))
             {
-                RaiseConnectionDragEvent(this,(Vector)currentPosition);
+                RaiseConnectionDragEvent(this, Anchor, (Vector)currentPosition);
                 Debug.Print("다른 Connector 에 들어 갔다가 다시 자신으로 돌아온 경우");
             }
         }
-        
+
         args.Handled = true;
     }
-    
+
     // TODO  이제 Connector 는 부모 Layout 의 좌표체계를 가져와야 하기 때문에
     //  var parent = this.GetParentVisualOfType<Canvas>(); 이부분 고쳐 줘야 한다. 
     protected override void HandlePointerReleased(object? sender, PointerReleasedEventArgs args)
@@ -178,14 +157,12 @@ public sealed class OutConnector : Connector, ILocatable
         // 두가지를 생각해야 한다. InConnector 에서 Release 되었는지 아닌지.
         if (this.Equals(args.Pointer.Captured) && this.IsPointerPressed)
         {
-            // TODO 일단 Canvas 라고 가정한다.
             var parent = this.GetParentVisualByName<Canvas>("PART_TopLayer");
             if (parent == null) return;
+
             var currentPosition = args.GetPosition(parent);
-
             // 마우스 이동중 새로운 Connector 에 들어가면 null 이 아님.
-            var elementUnderPointer = parent.GetElementUnderMouse<Connector>(currentPosition);
-
+            var elementUnderPointer = parent.GetControlUnderPointer<Connector>(currentPosition);
             if (elementUnderPointer is InConnector okConnector)
             {
                 okConnector.Focus();
@@ -195,7 +172,8 @@ public sealed class OutConnector : Connector, ILocatable
                 args.Handled = true;
                 PreviousConnector = null;
                 _outSideOutConnector = false;
-                RaiseConnectionCompletedEvent(okConnector);
+
+                RaiseConnectionCompletedEvent(okConnector, Anchor, okConnector.Anchor);
             }
             else
             {
@@ -206,7 +184,7 @@ public sealed class OutConnector : Connector, ILocatable
                 PreviousConnector = null;
                 _outSideOutConnector = false;
                 // TODO 일단  이부분도 생각해봐야 한다.
-                RaiseConnectionCompletedEvent(null);
+                RaiseConnectionCompletedEvent(null, null, null);
             }
         }
     }
@@ -214,7 +192,7 @@ public sealed class OutConnector : Connector, ILocatable
     #endregion
 
     #region Methods
-    
+
     // Raise events
     /// <summary>
     /// OutConnector 에서 Connection 시작할때 PendingConnection 에 필요한 데이터 이벤트로 전달.
@@ -226,90 +204,38 @@ public sealed class OutConnector : Connector, ILocatable
         var args = new PendingConnectionEventArgs(PendingConnectionStartedEvent, connector, anchor);
         RaiseEvent(args);
     }
+
     /// <summary>
     /// OutConnector 에서 Dragging 할때 PendingConnection 에 필요한 데이터 이벤트로 전달.
     /// </summary>
     /// <param name="connector">전달되는 값은 OutConnector 여야 함.</param>
+    /// <param name="anchor">connection 이 시작될때의 위치값이다.</param>
     /// <param name="offset">이동 Vector 값 (이후 조정되어야 함.)</param>
-    protected override void RaiseConnectionDragEvent(Connector? connector, Vector? offset)
+    protected override void RaiseConnectionDragEvent(Connector? connector, Point? anchor, Vector? offset)
     {
-        var args = new PendingConnectionEventArgs(PendingConnectionDragEvent,connector, offset);
+        var args = new PendingConnectionEventArgs(PendingConnectionDragEvent, connector, anchor, offset);
         RaiseEvent(args);
     }
+
     /// <summary>
     /// OutConnector 에서 Dragging 종료할때 PendingConnection 에 필요한 데이터 이벤트로 전달.
     /// </summary>
     /// <param name="connector">여기서는 InConnector 가 되어야 할듯 하다. 이건 좀더 생각</param>
-    protected override void RaiseConnectionCompletedEvent(Connector? connector)
+    /// <param name="inAnchor">Pressed 되었을때의 Anchor 값과 같다. 사실 이걸 안넘기고 Pressed 했을때 받은 Anchor 를 써도 되지만, 해석을 위해서 넘긴다.</param>
+    /// <param name="outAnchor">InConnector 의 Anchor 이다.</param>
+    protected override void RaiseConnectionCompletedEvent(Connector? connector, Point? inAnchor, Point? outAnchor)
     {
-        var args = new PendingConnectionEventArgs(PendingConnectionCompletedEvent, connector);
+        var args = new PendingConnectionEventArgs(PendingConnectionCompletedEvent, connector, inAnchor, outAnchor);
         RaiseEvent(args);
-    }
-    
-    // DataContext 는 살펴보자.
-    /*private void StartedRaiseEvent(object? sender)
-    {
-        var args = new PendingConnectionEventArgs(PendingConnectionStartedEvent, this, DataContext)
-        {
-            Anchor = Anchor,
-            Sender = sender,
-        };
-
-        RaiseEvent(args);
-    }
-
-    // 빈공란으로 향후 남겨두자.
-    private void DragRaiseEvent(object? sender ,Vector? offset)
-    {
-        if (offset == null) return;
-
-        var args = new PendingConnectionEventArgs(PendingConnectionDragEvent, this, DataContext)
-        {
-            OffsetX = offset.Value.X,
-            OffsetY = offset.Value.Y,
-            Sender = sender,
-        };
-
-        RaiseEvent(args);
-    }
-
-    private void CompletedRaiseEvent(object? sender)
-    {
-        // PendingConnectionEventArgs(DataContext) 관련해서 살펴봐야 함.
-        var args = new PendingConnectionEventArgs(PendingConnectionCompletedEvent, this, DataContext)
-        {
-            Sender = sender,
-            //Anchor = Anchor,
-        };
-        RaiseEvent(args);
-    }*/
-    
-    // 이렇게 하지 말고 차라리 그냥 ConnectionPoint 를 넘기자.
-    protected override Point FindConnectionPoint()
-    {
-        // 부모의 위치 값
-        var x = Anchor.X;
-        var y = Anchor.Y;
-        
-        return base.FindConnectionPoint();
-    }
-
-    private Point FindOutPoint()
-    {
-        if (Anchor == null)
-            return new Point(10,10);
-        return new Point(0, 0);
     }
 
     #endregion
-    
+
     /// <inheritdoc />
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
         base.OnApplyTemplate(e);
-        
+
         Debug.WriteLine(Anchor.ToString());
-      
     }
-    
 }

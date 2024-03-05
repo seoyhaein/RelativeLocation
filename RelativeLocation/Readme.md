@@ -10,7 +10,7 @@
 ~~- Panning 구현 다시 정리하기.(DAGlynEditor 구현 및 정리)~~   
 ~~- Panning 관련하여 Canvas 의 사이즈가 고정되서 움직여서 이것에 대한 버그가 발생한다. 이것을 해결해야 한다.~~  
 - DirectProperty 좀더 연구.  
-- Nodify 에서 Node 추가하는 소스 코드 한번 살펴본다.  
+~~- Nodify 에서 Node 추가하는 소스 코드 한번 살펴본다.~~  
 ~~- Connector 연결 구현, 이동에 따른 연결점(Anchor) 의 업데이트 구현, PendingConnection 및 연결 완료되었을때 연결선 구현~~    
 ~~- Connector 연결 구현을 위해서 Connector 에서의 PendingConnectionEventArgs 이벤트 발생시키고, 핸들러를 DAGlynEditor 추가해서 처리해야함.~~  
 ~~- PendingConnectionEventArgs 코드 정리 및 수정해야함.~~  
@@ -22,12 +22,12 @@
 - PendingConnection UI 개선
 ~~- Connection 연결선 Layer 만들어 주기 및 속성 추가. Connection 연결선 생성 루틴 개발~~    
 ~~- unit 테스트 에서 Dispse 관련 테스트 진행 중 dotMemory 등 사용방법 숙지가 필요 할듯하다. 계속 실폐 중~~
-- 이벤트에 따라 Connection 추가하기  
+~~- 이벤트에 따라 Connection 추가하기~~  
 - Panning 시 Connection 의 잔상이 남는 버그 처리해야함. 
-- 버그 수정  
-- Node 에서 Anchor 2 개가 설정되어야 한다.(In/Out) 이게 Connector 의 Anchor 에 바인딩 하는 형태로 가야 한다.  
+~~- 버그 수정~~  
+~~- Node 에서 Anchor 2 개가 설정되어야 한다.(In/Out) 이게 Connector 의 Anchor 에 바인딩 하는 형태로 가야 한다.~~    
 - StartNode 는 Anchor(Out) 하나 있고, EndNode 도 Anchor(In) 하나 있다. 
-- 대략적으로 완성했지만 버그 있음. 버그는 내일 고치자 (2/29) Unloaded 처리 부분도 생각하자.  
+~~- 대략적으로 완성했지만 버그 있음. 버그는 내일 고치자 (2/29) Unloaded 처리 부분도 생각하자.~~    
 - Node 위치 변경 시, 최종적으로 해당 위치를 업데이트는 하는 부분을 넣어두고 이것을 토대로 Anchor 계산하는 코드를 적용하자.  
 - 
 ## 코드 정리 순서

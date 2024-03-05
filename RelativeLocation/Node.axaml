@@ -40,7 +40,8 @@
 
                             <!-- 왼쪽 구획 -->
                             <!--<Rectangle Grid.Column="0" Fill="#4d4d4d"/> -->
-                            <controls:InConnector Grid.Column="0" />
+                            <controls:InConnector Grid.Column="0"  
+                                                  Anchor="{TemplateBinding InAnchor}" />
                             <!--<StackPanel Grid.Column="0">
                                 <TextBlock Text="Left Node" Foreground="WhiteSmoke" Margin="5" />
                                 ~1~ 왼쪽 포트들을 추가할 수 있음 @1@

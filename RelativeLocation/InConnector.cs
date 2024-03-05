@@ -42,5 +42,20 @@ public sealed class InConnector : Connector, ILocatable
         //FocusableProperty.OverrideDefaultValue<InConnector>(true);
         FillProperty.OverrideDefaultValue<InConnector>(BrushResources.InConnectorDefaultFill);
     }
-    
+
+    protected override void HandlePointerPressed(object? sender, PointerPressedEventArgs args)
+    {
+        args.Handled = true;
+    }
+
+    protected override void HandlePointerMoved(object? sender, PointerEventArgs args)
+    {
+        args.Handled = true;
+    }
+
+    protected override void HandlePointerReleased(object? sender, PointerReleasedEventArgs args)
+    {
+        args.Handled = true;
+    }
+
 }
