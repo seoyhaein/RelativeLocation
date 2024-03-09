@@ -28,7 +28,19 @@ public sealed class OutConnector : Connector, ILocatable
 
     #region Dependency Properties
 
-    // 아래 두개의 속성은 필요없을듯 하다.
+    // connector 에 넣을까 하다가 그냥 여기다 넣음.
+    // TODO 여기서 DirectProperty 안 쓰고, AvaloniaProperty 를 쓴 이유는 외부에서 데이터를 설정해야 하기때문이다.
+    // 한번 테스트 해보자. (시간날때.)
+    public static readonly StyledProperty<Guid> NodeIdProperty =
+        AvaloniaProperty.Register<OutConnector, Guid>(nameof(NodeId));
+
+    public Guid NodeId
+    {
+        get => GetValue(NodeIdProperty);
+        set => SetValue(NodeIdProperty, value);
+    }
+
+    // TODO 이거 지워도 될 듯하다. 테스트 할 때 지우자.
     public static readonly StyledProperty<Point> LocationProperty =
         AvaloniaProperty.Register<BaseNode, Point>(nameof(Location), Constants.ZeroPoint);
 
@@ -173,7 +185,7 @@ public sealed class OutConnector : Connector, ILocatable
                 PreviousConnector = null;
                 _outSideOutConnector = false;
 
-                RaiseConnectionCompletedEvent(okConnector, Anchor, okConnector.Anchor);
+                RaiseConnectionCompletedEvent(okConnector, Anchor, NodeId, okConnector.Anchor, okConnector.NodeId);
             }
             else
             {
@@ -184,7 +196,7 @@ public sealed class OutConnector : Connector, ILocatable
                 PreviousConnector = null;
                 _outSideOutConnector = false;
                 // TODO 일단  이부분도 생각해봐야 한다.
-                RaiseConnectionCompletedEvent(null, null, null);
+                RaiseConnectionCompletedEvent(null, null, null, null, null);
             }
         }
     }
@@ -223,9 +235,18 @@ public sealed class OutConnector : Connector, ILocatable
     /// <param name="connector">여기서는 InConnector 가 되어야 할듯 하다. 이건 좀더 생각</param>
     /// <param name="inAnchor">Pressed 되었을때의 Anchor 값과 같다. 사실 이걸 안넘기고 Pressed 했을때 받은 Anchor 를 써도 되지만, 해석을 위해서 넘긴다.</param>
     /// <param name="outAnchor">InConnector 의 Anchor 이다.</param>
-    protected override void RaiseConnectionCompletedEvent(Connector? connector, Point? inAnchor, Point? outAnchor)
+    ///  /// <param name="inNodeId">Pressed 되었을때의 Anchor 값과 같다. 사실 이걸 안넘기고 Pressed 했을때 받은 Anchor 를 써도 되지만, 해석을 위해서 넘긴다.</param>
+    /// <param name="outNodeId">InConnector 의 Anchor 이다.</param>
+    /*protected override void RaiseConnectionCompletedEvent(Connector? connector, Point? inAnchor, Point? outAnchor)
     {
         var args = new PendingConnectionEventArgs(PendingConnectionCompletedEvent, connector, inAnchor, outAnchor);
+        RaiseEvent(args);
+    }*/
+    protected override void RaiseConnectionCompletedEvent(Connector? connector, Point? inAnchor, Guid? inNodeId,
+        Point? outAnchor, Guid? outNodeId)
+    {
+        var args = new PendingConnectionEventArgs(PendingConnectionCompletedEvent, connector, inAnchor, inNodeId,
+            outAnchor, outNodeId);
         RaiseEvent(args);
     }
 

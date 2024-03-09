@@ -49,19 +49,14 @@ public class BaseNode : ContentControl, IDisposable, ILocatable
     #region Fields
 
     private readonly CompositeDisposable _disposables = new CompositeDisposable();
-    
-    // ParentControl 이 없으면, Node 가 움직일 수 없으므로 이것을 확인하는 루틴이 필요하다.
-    //protected Control? ParentControl;
     protected bool IsDragging = false;
 
     // Pointer location
     protected Point InitialPointerPosition;
     protected Point PreviousPointerPosition;
     protected Point CurrentPointerPosition;
+    //protected Point DraggedPosition;
     
-    // TODO 생각하기
-    protected Point FinalPosition;
-
     #endregion
 
     #region Constructors
@@ -93,12 +88,6 @@ public class BaseNode : ContentControl, IDisposable, ILocatable
                 h => this.PointerReleased += h,
                 h => this.PointerReleased -= h)
             .Subscribe(args => HandlePointerReleased(args.Sender, args.EventArgs))
-            .DisposeWith(_disposables);
-        
-        Observable.FromEventPattern<RoutedEventArgs>(
-                h => this.Loaded += h,
-                h => this.Loaded -= h)
-            .Subscribe(args => HandleLoaded(args.Sender, args.EventArgs))
             .DisposeWith(_disposables);
     }
 

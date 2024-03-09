@@ -1,3 +1,4 @@
+using System;
 using Avalonia;
 using Avalonia.Collections;
 
@@ -11,8 +12,8 @@ public class DAG
     public AvaloniaList<DAGItems> DAGItemsSource { get; set; } = new AvaloniaList<DAGItems>()
     {
         new DAGItems(new Point(10, 10), DAGItemsType.RunnerNode),
-        //new DAGItems(new Point(20, 20), DAGItemsType.RunnerNode),
-        new DAGItems(new Point(300, 200), DAGItemsType.RunnerNode),
+        new DAGItems(new Point(300, 300), DAGItemsType.RunnerNode),
+        new DAGItems(new Point(400, 100), DAGItemsType.RunnerNode),
         //new DAGItems(new Point(15, 15), new Point(30,30)),
         //new DAGItems(new Point(25, 25), new Point(50,50)),
     };
@@ -33,6 +34,15 @@ public class DAG
         if (start is null || end is null) return false;
 
         var newItem = new DAGItems(start, end);
+        DAGItemsSource.Add(newItem);
+        return true; // 성공적으로 추가되었으면 true 반환
+    }
+    
+    public bool AddDAGItem(Point? start,Guid? inNodeId, Point? end, Guid? outNodeId)
+    {
+        if (start is null || end is null) return false;
+
+        var newItem = new DAGItems(start, inNodeId, end, outNodeId);
         DAGItemsSource.Add(newItem);
         return true; // 성공적으로 추가되었으면 true 반환
     }

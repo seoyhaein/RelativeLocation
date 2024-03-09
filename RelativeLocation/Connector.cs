@@ -129,7 +129,7 @@ public class Connector : TemplatedControl, IDisposable
     {
     }
 
-    protected virtual void RaiseConnectionCompletedEvent(Connector? connector, Point? inAnchor, Point? outAnchor)
+    protected virtual void RaiseConnectionCompletedEvent(Connector? connector, Point? inAnchor, Guid? inNodeId, Point? outAnchor, Guid? outNodeId)
     {
     }
     

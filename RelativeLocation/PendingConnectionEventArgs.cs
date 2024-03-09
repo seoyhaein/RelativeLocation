@@ -1,3 +1,4 @@
+using System;
 using Avalonia;
 using Avalonia.Interactivity;
 
@@ -31,6 +32,17 @@ public class PendingConnectionEventArgs : RoutedEventArgs
         InAnchor = inAnchor;
         OutAnchor = outAnchor;
     }
+    // TODO 일단 이렇게 추가함.
+    public PendingConnectionEventArgs(RoutedEvent routedEvent, Connector? sourceConnector, Point? inAnchor, Guid? inNodeId,
+        Point? outAnchor, Guid? outNodeId)
+        : base(routedEvent)
+    {
+        SourceConnector = sourceConnector;
+        InAnchor = inAnchor;
+        InNodeId = inNodeId;
+        OutAnchor = outAnchor;
+        OutNodeId = outNodeId;
+    }
 
     // TODO 여기서 Connector? sourceConnector 는 필요없을 듯한데 일단 남겨둔다.
     public PendingConnectionEventArgs(RoutedEvent routedEvent, Connector? sourceConnector, Point? anchor, Vector? offset)
@@ -54,4 +66,8 @@ public class PendingConnectionEventArgs : RoutedEventArgs
     // 일단 위의 Anchor 는 살려둠.
     public Point? InAnchor { get; set; }
     public Point? OutAnchor { get; set; }
+    
+    // 일단 이렇게 추가함.
+    public Guid? InNodeId { get; set; }
+    public Guid? OutNodeId { get; set; }
 }

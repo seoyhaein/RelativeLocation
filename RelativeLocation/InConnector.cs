@@ -24,6 +24,19 @@ public sealed class InConnector : Connector, ILocatable
     
     #region Dependency Properties
     
+    // connector 에 넣을까 하다가 그냥 여기다 넣음.
+    // TODO 여기서 DirectProperty 안 쓰고, AvaloniaProperty 를 쓴 이유는 외부에서 데이터를 설정해야 하기때문이다.
+    // 한번 테스트 해보자. (시간날때.)
+    public static readonly StyledProperty<Guid> NodeIdProperty =
+        AvaloniaProperty.Register<InConnector, Guid>(nameof(NodeId));
+
+    public Guid NodeId
+    {
+        get => GetValue(NodeIdProperty);
+        set => SetValue(NodeIdProperty, value);
+    }
+    
+    // TODO 이거 지워도 될 듯하다. 테스트 할 때 지우자.
     public static readonly StyledProperty<Point> LocationProperty =
         AvaloniaProperty.Register<BaseNode, Point>(nameof(Location), Constants.ZeroPoint);
 

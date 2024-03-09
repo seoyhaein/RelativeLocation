@@ -28,8 +28,13 @@
 ~~- Node 에서 Anchor 2 개가 설정되어야 한다.(In/Out) 이게 Connector 의 Anchor 에 바인딩 하는 형태로 가야 한다.~~    
 - StartNode 는 Anchor(Out) 하나 있고, EndNode 도 Anchor(In) 하나 있다. 
 ~~- 대략적으로 완성했지만 버그 있음. 버그는 내일 고치자 (2/29) Unloaded 처리 부분도 생각하자.~~    
-- Node 위치 변경 시, 최종적으로 해당 위치를 업데이트는 하는 부분을 넣어두고 이것을 토대로 Anchor 계산하는 코드를 적용하자.  
-- 
+- Node 위치 변경 시, 최종적으로 해당 위치를 업데이트는 하는 부분을 넣어두고 이것을 토대로 Anchor 계산하는 코드를 적용하자.
+- 위의 내용 구현 후 테스트 좀 잘하고 github 업데이트 하자. 된장.   
+- 새로운 버그 Node 의 특정 위치에서 이동이 이상하게 나타남. 그리고 "invalid transform string" 라는 이상이 나타남.    
+- Canvas 와 EditorCanvas, LayoutCanvas 의 Bound 를 살펴보기로 한다. 이거 정검한번 해야함. 일단 버그는 여기서 발생한 문제는 아니다.  
+- 하지만, 위의 코드는 한번 살펴보고 Bound 문제등도 한번 정검해보자. 시간날때. 일단 지우지 않고 남겨둔다.  
+~~- Avalonia.Controls.Primitives 에서 https://reference.avaloniaui.net/api/Avalonia.Controls.Primitives/Thumb/BE3BA1F0~~
+~~- 위의 코드 살펴보고, node 의 drag 를 개선하자. 현재 마우스 고속으로 움직였을때 화면 튀는 현상 발생한다.~~
 ## 코드 정리 순서
 
 ## 벤치마킹

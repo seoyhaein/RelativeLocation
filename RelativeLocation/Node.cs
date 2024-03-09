@@ -25,20 +25,43 @@ public class Node : BaseNode
     #region Dependency Properties
     
     public static readonly StyledProperty<Control?> ParentControlProperty =
-        AvaloniaProperty.Register<BaseNode, Control?>(nameof(ParentControl));
+        AvaloniaProperty.Register<Node, Control?>(nameof(ParentControl));
 
     public Control? ParentControl
     {
         get => GetValue(ParentControlProperty);
         set => SetValue(ParentControlProperty, value);
     }
+    
+    // Id 추가 BaseNode 에 않넣는 이유는 StartNode, EndNode 는 다른 ID 체계로 사용할려고 한다.
+    private Guid _id;
+
+    public static readonly DirectProperty<Node, Guid> IdProperty =
+        AvaloniaProperty.RegisterDirect<Node, Guid>(
+            nameof(Id),
+            o => o.Id,
+            (o, v) => o.Id = v);
+
+    public Guid Id
+    {
+        get => _id;
+        set => SetAndRaise(IdProperty, ref _id, value);
+    }
+    
     #endregion
     
     #region fields
     
     // Node 의 움직임을 위해
-    private TranslateTransform _translateTransform = new TranslateTransform();
     private readonly IDisposable _disposable;
+    // TODO TranslateTransform 다르게 구현하는 방식을 생각해보자. 시간날때 이렇게 하는거 좀 걸림.
+    private TranslateTransform _translateTransform = new TranslateTransform();
+    private Point _initialPointerPosition; // 드래그 시작 시 마우스 포인터의 위치
+    private Point _initialNodePosition; // 드래그 시작 시 노드의 위치
+    private Point _temporaryNewPosition; // 노드의 임시 위치
+    private Vector _dragAccumulator; // 드래그 동안의 누적 이동 거리
+    // TODO 이름 조정
+    private const int GridCellSize = 15; // 그리드 셀 크기, 필요에 따라 조정
     
     #endregion
     
@@ -54,28 +77,76 @@ public class Node : BaseNode
 
     public Node(Point location) : this()
     {
+        // 생성자에서만 id 설정하도록 하였음.
+        _id = Guid.NewGuid(); 
         this.Location = location;
         (InAnchor, OutAnchor) = FindAnchors(location);
     }
     
     #endregion
+    
+    #region Routed Events
+    
+    // TODO 일단 이벤트를 1개 만들지 또는 2개, 3개를 만들지 고민해야함.
+    public static readonly RoutedEvent<ConnectionChangedEventArgs> ConnectionChangedEvent =
+        RoutedEvent.Register<Node, ConnectionChangedEventArgs>(
+            nameof(ConnectionChanged),
+            RoutingStrategies.Bubble);
+
+    /*public static readonly RoutedEvent<ConnectionChangedEventArgs> PendingConnectionCompletedEvent =
+        RoutedEvent.Register<Node, ConnectionChangedEventArgs>(
+            nameof(PendingConnectionCompleted),
+            RoutingStrategies.Bubble);
+
+    public static readonly RoutedEvent<ConnectionChangedEventArgs> PendingConnectionDragEvent =
+        RoutedEvent.Register<Node, ConnectionChangedEventArgs>(
+            nameof(PendingConnectionDrag),
+            RoutingStrategies.Bubble);*/
+
+    public event EventHandler<ConnectionChangedEventArgs> ConnectionChanged
+    {
+        add => AddHandler(ConnectionChangedEvent, value);
+        remove => RemoveHandler(ConnectionChangedEvent, value);
+    }
+
+    /*public event EventHandler<ConnectionChangedEventArgs> PendingConnectionCompleted
+    {
+        add => AddHandler(PendingConnectionCompletedEvent, value);
+        remove => RemoveHandler(PendingConnectionCompletedEvent, value);
+    }
+
+    public event EventHandler<ConnectionChangedEventArgs> PendingConnectionDrag
+    {
+        add => AddHandler(PendingConnectionDragEvent, value);
+        remove => RemoveHandler(PendingConnectionDragEvent, value);
+    }*/
+    
+    // event 날려주는 메서드
+    private void RaiseConnectionChangedEvent(Point? inAnchor, Point? outAnchor)
+    {
+        var args = new ConnectionChangedEventArgs(ConnectionChangedEvent, inAnchor, outAnchor);
+        RaiseEvent(args);
+    }
+
+    #endregion
 
     #region Evnet Handlers
 
-    protected override void HandlePointerPressed(object? sender, PointerPressedEventArgs args)
+   protected override void HandlePointerPressed(object? sender, PointerPressedEventArgs args)
     {
-        if(this.ParentControl == null)
+        if (this.ParentControl == null)
             throw new InvalidOperationException("Node cannot move because a DAGlynEditorCanvas parent is not found.");
-        
-        // 불필요한 조건 검사 제거
-        if (args.GetCurrentPoint(this).Properties.IsLeftButtonPressed && sender != null)
+
+        if (args.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
         {
             Focus();
             args.Pointer.Capture(this);
             Debug.Print("Dragging Start");
-
-            InitialPointerPosition = args.GetPosition(ParentControl);
-            PreviousPointerPosition = InitialPointerPosition;
+            // 드래그 시작 시의 마우스 포인터 위치와 노드의 현재 위치를 저장.
+            _initialPointerPosition = args.GetPosition(ParentControl);
+            _initialNodePosition = this.Location; // 현재 노드의 위치를 초기 위치로 설정
+            // 여기서 초기화 시켜주는 것이 바람직할 것같다.
+            _dragAccumulator = new Vector(); // 드래그 누적 거리 초기화
             this.IsDragging = true;
             args.Handled = true;
         }
@@ -83,45 +154,61 @@ public class Node : BaseNode
 
     protected override void HandlePointerMoved(object? sender, PointerEventArgs args)
     {
-        if(this.ParentControl == null)
+        if (this.ParentControl == null)
             throw new InvalidOperationException("Node cannot move because a DAGlynEditorCanvas parent is not found.");
-        
-        if (sender == null || !this.IsDragging || !this.Equals(args.Pointer.Captured)) return;
+
+        if (!this.IsDragging || !this.Equals(args.Pointer.Captured)) return;
 
         Debug.Print("Dragging...");
-        CurrentPointerPosition = args.GetPosition(ParentControl);
-        var delta = CurrentPointerPosition - PreviousPointerPosition;
+        var currentPointerPosition = args.GetPosition(ParentControl);
+        // 드래그 시작 위치와 현재 포인터 위치의 차이(delta)를 계산
+        var delta = currentPointerPosition - _initialPointerPosition;
+        // 노드의 새 위치를 드래그 시작 시 노드 위치 + delta로 계산
+        _dragAccumulator += delta;
+        // 그리드 크기에 맞추어 효과적인 델타 계산
+        var effectiveDelta = new Vector(
+            Math.Floor(_dragAccumulator.X / GridCellSize) * GridCellSize,
+            Math.Floor(_dragAccumulator.Y / GridCellSize) * GridCellSize);
 
-        // 드래그 임계값 검사
-        // TODO 현재 이동 위치에 대한 최종값을 저장하는 변수를 설정한다.
-        // 이거 정리 필요.
-        if (((Vector)delta).SquaredLength  > Constants.AppliedThreshold)
+        if (effectiveDelta != Vector.Zero)
         {
-            // TODO location + delta 값을 저장하고 있지 않고 있다. 다른값을 저장하고 있다.
-            // 이거 버그 생각해야함.
-            NodeMove(this.Location + delta); // SetLocation 메소드를 통한 위치 업데이트
-            //TODO 일단 이렇게 넣어두었음. 새로운 node 위치임.
-            FinalPosition = Location + delta;
-            PreviousPointerPosition = CurrentPointerPosition;
-            args.Handled = true;
+            _translateTransform.X += effectiveDelta.X;
+            _translateTransform.Y += effectiveDelta.Y;
+            _dragAccumulator -= effectiveDelta; // 적용된 델타만큼 누적 이동 거리 조정
+            // 임시 새 위치 계산
+            _temporaryNewPosition = new Point(
+                _initialNodePosition.X + _translateTransform.X,
+                _initialNodePosition.Y + _translateTransform.Y);
         }
+        _initialPointerPosition = currentPointerPosition; // 포인터 위치 업데이트
+        // TODO oldData 기록할 필요 있을듯
+        // 아래와 같이 null check는 해야 하지 않을까??
+        (InAnchor, OutAnchor) = UpdateAnchors(InAnchor, OutAnchor, _temporaryNewPosition);
+        
+        // 추가
+        RaiseConnectionChangedEvent(InAnchor, OutAnchor);
+        args.Handled = true;
     }
 
     protected override void HandlePointerReleased(object? sender, PointerReleasedEventArgs args)
     {
-        if(this.ParentControl == null)
+        if (this.ParentControl == null)
             throw new InvalidOperationException("Node cannot move because a DAGlynEditorCanvas parent is not found.");
-        
+
         if (sender != null && this.Equals(args.Pointer.Captured) && this.IsDragging)
         {
+            // 최종 업데이트 된 위치 적용.
+            this.Location = _temporaryNewPosition;
+            
             // Anchors update
-            (InAnchor, OutAnchor) = UpdateAnchors(InAnchor, OutAnchor, FinalPosition);
+            (InAnchor, OutAnchor) = UpdateAnchors(InAnchor, OutAnchor, _temporaryNewPosition);
             // TODO InAnchor, OutAnchor 는 null 일 수 없다. 이거 정리하자. 일단 이렇게 둠.
             if (InAnchor == null || OutAnchor == null)
-            {
-                throw new InvalidOperationException("InAnchor and OutAnchor must be updated successfully and cannot be null after moving the node.");
-            }
+                throw new InvalidOperationException(
+                    "InAnchor and OutAnchor must be updated successfully and cannot be null after moving the node.");
             
+            // 추가
+            RaiseConnectionChangedEvent(InAnchor, OutAnchor);
             Debug.Print("Finish");
             args.Pointer.Capture(null);
             this.IsDragging = false;
@@ -220,7 +307,6 @@ public class Node : BaseNode
     private (Point? updatedInAnchor, Point? updatedOutAnchor) UpdateAnchors(Point? inAnchor, Point? outAnchor, Point finalPoint)
     {
         if (!inAnchor.HasValue || !outAnchor.HasValue)
-            // inAnchor 또는 outAnchor 중 하나라도 null이면, null 튜플을 반환
             return (null, null);
 
         Point updatedInAnchor = new Point(inAnchor.Value.X + finalPoint.X, inAnchor.Value.Y + finalPoint.Y);
