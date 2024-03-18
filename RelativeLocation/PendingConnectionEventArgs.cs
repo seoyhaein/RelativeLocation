@@ -24,23 +24,35 @@ public class PendingConnectionEventArgs : RoutedEventArgs
         Anchor = anchor;
     }
 
-    public PendingConnectionEventArgs(RoutedEvent routedEvent, Connector? sourceConnector, Point? inAnchor,
-        Point? outAnchor)
+    public PendingConnectionEventArgs(RoutedEvent routedEvent, Connector? sourceConnector, Point? startAnchor,
+        Point? endAnchor)
         : base(routedEvent)
     {
         SourceConnector = sourceConnector;
-        InAnchor = inAnchor;
-        OutAnchor = outAnchor;
+        StartAnchor = startAnchor;
+        EndAnchor = endAnchor;
     }
     // TODO 일단 이렇게 추가함.
-    public PendingConnectionEventArgs(RoutedEvent routedEvent, Connector? sourceConnector, Point? inAnchor, Guid? inNodeId,
-        Point? outAnchor, Guid? outNodeId)
+    public PendingConnectionEventArgs(RoutedEvent routedEvent, Connector? sourceConnector, Point? startAnchor, Guid? inNodeId,
+        Point? endAnchor, Guid? outNodeId)
         : base(routedEvent)
     {
         SourceConnector = sourceConnector;
-        InAnchor = inAnchor;
+        StartAnchor = startAnchor;
         InNodeId = inNodeId;
-        OutAnchor = outAnchor;
+        EndAnchor = endAnchor;
+        OutNodeId = outNodeId;
+    }
+    
+    public PendingConnectionEventArgs(RoutedEvent routedEvent, Connector? sourceConnector,Guid? nodeId ,Point? startAnchor, Guid? inNodeId,
+        Point? endAnchor, Guid? outNodeId)
+        : base(routedEvent)
+    {
+        SourceConnector = sourceConnector;
+        NodeId = nodeId;
+        StartAnchor = startAnchor;
+        InNodeId = inNodeId;
+        EndAnchor = endAnchor;
         OutNodeId = outNodeId;
     }
 
@@ -64,10 +76,11 @@ public class PendingConnectionEventArgs : RoutedEventArgs
     public Vector? Offset { get; set; }
 
     // 일단 위의 Anchor 는 살려둠.
-    public Point? InAnchor { get; set; }
-    public Point? OutAnchor { get; set; }
+    public Point? StartAnchor { get; set; }
+    public Point? EndAnchor { get; set; }
     
     // 일단 이렇게 추가함.
+    public Guid? NodeId { get; set; }
     public Guid? InNodeId { get; set; }
     public Guid? OutNodeId { get; set; }
 }

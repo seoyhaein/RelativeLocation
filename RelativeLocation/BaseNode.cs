@@ -22,26 +22,26 @@ public class BaseNode : ContentControl, IDisposable, ILocatable
         set => SetValue(LocationProperty, value);
     }
     
-    public static readonly StyledProperty<Point?> InAnchorProperty =
-        AvaloniaProperty.Register<BaseNode, Point?>(nameof(InAnchor));
+    public static readonly StyledProperty<Point?> StartAnchorProperty =
+        AvaloniaProperty.Register<BaseNode, Point?>(nameof(StartAnchor));
     
     /// <summary>
     /// StartNode는 OutAnchor 가 있고 EndNode 는 InAnchor 가 있다.
     /// 일반 Node 는 OutAnchor 와 InAnchor 가 있다. 
     /// </summary>
-    public Point? InAnchor
+    public Point? StartAnchor
     {
-        get => GetValue(InAnchorProperty);
-        set => SetValue(InAnchorProperty, value);
+        get => GetValue(StartAnchorProperty);
+        set => SetValue(StartAnchorProperty, value);
     }
     
-    public static readonly StyledProperty<Point?> OutAnchorProperty =
-        AvaloniaProperty.Register<BaseNode, Point?>(nameof(OutAnchor));
+    public static readonly StyledProperty<Point?> EndAnchorProperty =
+        AvaloniaProperty.Register<BaseNode, Point?>(nameof(EndAnchor));
 
-    public Point? OutAnchor
+    public Point? EndAnchor
     {
-        get => GetValue(OutAnchorProperty);
-        set => SetValue(OutAnchorProperty, value);
+        get => GetValue(EndAnchorProperty);
+        set => SetValue(EndAnchorProperty, value);
     }
     
     #endregion

@@ -322,7 +322,7 @@ namespace RelativeLocation
             context.BeginFigure(target, true);
             context.LineTo(from);
             context.LineTo(to);
-
+            // 주석 지우지 말것!
             // Stroke 색상 가져오기 Avalonia 에서는 필요 없음.
             // var strokeColor = Stroke is SolidColorBrush strokeBrush ? strokeBrush.Color : Colors.Black;
             // Fill 속성에 Stroke 색상 적용
@@ -431,6 +431,22 @@ namespace RelativeLocation
                 var x = 1.0d / Math.Tan(angle) * y;
                 return new Vector(x, y);
             }
+        }
+
+        public void UpdateRending(Point start, Point end)
+        {
+            Source = start;
+            Target = end;
+        }
+
+        public void UpdateStart(Point start)
+        {
+            Source = start;
+        }
+
+        public void UpdateEnd(Point end)
+        {
+            Target = end;
         }
 
         #endregion

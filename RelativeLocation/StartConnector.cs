@@ -7,22 +7,8 @@ using Avalonia.Controls.Primitives;
 
 namespace RelativeLocation;
 
-/*
- * OutConnector 의 경우는 line 이 나가는 Connector 임, 즉 Source 임.
- * 
- */
-
-/// <summary>
-/// HandlePointerMoved
-/// 지금 Canvas 로 잡았는데, 이부분은 수정해야함.
-/// 공통된 부분 깔끔하게 정리해야함. 
-/// </summary>
-
-// ILocatable 은 테스트 용도로 넣었음. 테스트 끝난 후 삭제할 예정임. 
-// LocationProperty 삭제 예정
-
 // TODO 코드 정리 필요. 
-public sealed class OutConnector : Connector, ILocatable
+public sealed class StartConnector : Connector
 {
     protected override Type StyleKeyOverride => typeof(Connector);
 
@@ -32,7 +18,7 @@ public sealed class OutConnector : Connector, ILocatable
     // TODO 여기서 DirectProperty 안 쓰고, AvaloniaProperty 를 쓴 이유는 외부에서 데이터를 설정해야 하기때문이다.
     // 한번 테스트 해보자. (시간날때.)
     public static readonly StyledProperty<Guid> NodeIdProperty =
-        AvaloniaProperty.Register<OutConnector, Guid>(nameof(NodeId));
+        AvaloniaProperty.Register<StartConnector, Guid>(nameof(NodeId));
 
     public Guid NodeId
     {
@@ -40,23 +26,13 @@ public sealed class OutConnector : Connector, ILocatable
         set => SetValue(NodeIdProperty, value);
     }
 
-    // TODO 이거 지워도 될 듯하다. 테스트 할 때 지우자.
-    public static readonly StyledProperty<Point> LocationProperty =
-        AvaloniaProperty.Register<BaseNode, Point>(nameof(Location), Constants.ZeroPoint);
-
-    public Point Location
-    {
-        get => GetValue(LocationProperty);
-        set => SetValue(LocationProperty, value);
-    }
-
     #endregion
 
     #region Constructor
 
-    static OutConnector()
+    static StartConnector()
     {
-        FillProperty.OverrideDefaultValue<OutConnector>(BrushResources.OutConnectorDefaultFill);
+        FillProperty.OverrideDefaultValue<StartConnector>(BrushResources.StartConnectorDefaultFill);
     }
 
     #endregion
@@ -91,14 +67,12 @@ public sealed class OutConnector : Connector, ILocatable
             RaiseConnectionStartEvent(this, Anchor);
         }
     }
-
-    // TODO  이제 Connector 는 부모 Layout 의 좌표체계를 가져와야 하기 때문에
-    //  var parent = this.GetParentVisualOfType<Canvas>(); 이부분 고쳐 줘야 한다. 
+    
     protected override void HandlePointerMoved(object? sender, PointerEventArgs args)
     {
         if (sender == null || !this.IsPointerPressed || this.PreviousConnector == null) return;
 
-        // TODO 일단 Canvas 라고 가정한다.
+        // PART_TopLayer 는 DAGlynEditor.axaml 에 있다. 이녀석이 없으면 기능을 하지 않는다.
         var parent = this.GetParentVisualByName<Canvas>("PART_TopLayer");
         if (parent == null) return;
         var currentPosition = args.GetPosition(parent);
@@ -159,9 +133,7 @@ public sealed class OutConnector : Connector, ILocatable
 
         args.Handled = true;
     }
-
-    // TODO  이제 Connector 는 부모 Layout 의 좌표체계를 가져와야 하기 때문에
-    //  var parent = this.GetParentVisualOfType<Canvas>(); 이부분 고쳐 줘야 한다. 
+    
     protected override void HandlePointerReleased(object? sender, PointerReleasedEventArgs args)
     {
         if (sender == null) return;
@@ -169,13 +141,15 @@ public sealed class OutConnector : Connector, ILocatable
         // 두가지를 생각해야 한다. InConnector 에서 Release 되었는지 아닌지.
         if (this.Equals(args.Pointer.Captured) && this.IsPointerPressed)
         {
+            // TODO 이 코드가 여기 꼭 있어야 하는지 생각하자.
+            // PART_TopLayer 는 DAGlynEditor.axaml 에 있다. 이녀석이 없으면 기능을 하지 않는다.
             var parent = this.GetParentVisualByName<Canvas>("PART_TopLayer");
             if (parent == null) return;
 
             var currentPosition = args.GetPosition(parent);
             // 마우스 이동중 새로운 Connector 에 들어가면 null 이 아님.
             var elementUnderPointer = parent.GetControlUnderPointer<Connector>(currentPosition);
-            if (elementUnderPointer is InConnector okConnector)
+            if (elementUnderPointer is EndConnector okConnector)
             {
                 okConnector.Focus();
                 Debug.Print(" InConnector Pointer Released");
@@ -184,7 +158,7 @@ public sealed class OutConnector : Connector, ILocatable
                 args.Handled = true;
                 PreviousConnector = null;
                 _outSideOutConnector = false;
-
+                // TODO InNodeId, OutNodeId 이름 수정 후 그 후에 이것들이 필요한지 생각한다.
                 RaiseConnectionCompletedEvent(okConnector, Anchor, NodeId, okConnector.Anchor, okConnector.NodeId);
             }
             else
@@ -229,35 +203,13 @@ public sealed class OutConnector : Connector, ILocatable
         RaiseEvent(args);
     }
 
-    /// <summary>
-    /// OutConnector 에서 Dragging 종료할때 PendingConnection 에 필요한 데이터 이벤트로 전달.
-    /// </summary>
-    /// <param name="connector">여기서는 InConnector 가 되어야 할듯 하다. 이건 좀더 생각</param>
-    /// <param name="inAnchor">Pressed 되었을때의 Anchor 값과 같다. 사실 이걸 안넘기고 Pressed 했을때 받은 Anchor 를 써도 되지만, 해석을 위해서 넘긴다.</param>
-    /// <param name="outAnchor">InConnector 의 Anchor 이다.</param>
-    ///  /// <param name="inNodeId">Pressed 되었을때의 Anchor 값과 같다. 사실 이걸 안넘기고 Pressed 했을때 받은 Anchor 를 써도 되지만, 해석을 위해서 넘긴다.</param>
-    /// <param name="outNodeId">InConnector 의 Anchor 이다.</param>
-    /*protected override void RaiseConnectionCompletedEvent(Connector? connector, Point? inAnchor, Point? outAnchor)
+    protected override void RaiseConnectionCompletedEvent(Connector? connector, Point? startAnchor, Guid? inNodeId,
+        Point? endAnchor, Guid? outNodeId)
     {
-        var args = new PendingConnectionEventArgs(PendingConnectionCompletedEvent, connector, inAnchor, outAnchor);
-        RaiseEvent(args);
-    }*/
-    protected override void RaiseConnectionCompletedEvent(Connector? connector, Point? inAnchor, Guid? inNodeId,
-        Point? outAnchor, Guid? outNodeId)
-    {
-        var args = new PendingConnectionEventArgs(PendingConnectionCompletedEvent, connector, inAnchor, inNodeId,
-            outAnchor, outNodeId);
+        var args = new PendingConnectionEventArgs(PendingConnectionCompletedEvent, connector, startAnchor, inNodeId,
+            endAnchor, outNodeId);
         RaiseEvent(args);
     }
-    /*protected override void RaiseConnectionCompletedEvent(Connector? connector, Guid? nodeId, Point? inAnchor,
-        Guid? inNodeId,
-        Point? outAnchor, Guid? outNodeId)
-    {
-        var args = new PendingConnectionEventArgs(PendingConnectionCompletedEvent, connector, nodeId, inAnchor,
-            inNodeId,
-            outAnchor, outNodeId);
-        RaiseEvent(args);
-    }*/
 
     #endregion
 

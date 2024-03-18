@@ -19,7 +19,7 @@ public class Connector : TemplatedControl, IDisposable
         // TODO axaml 에서 생성한 경우 Dispose 할 수 없는데 이렇게 하면 될까?
         this.Unloaded += (_, _) => this.Dispose();
     }
-    
+
     #endregion
 
     #region Routed Events
@@ -60,7 +60,7 @@ public class Connector : TemplatedControl, IDisposable
     #endregion
 
     #region Fields & Dependency Properties
-    
+
     public static readonly StyledProperty<Point> AnchorProperty =
         AvaloniaProperty.Register<Connector, Point>(nameof(Anchor));
 
@@ -69,7 +69,7 @@ public class Connector : TemplatedControl, IDisposable
         get => GetValue(AnchorProperty);
         set => SetValue(AnchorProperty, value);
     }
-    
+
     // 추가
     public static readonly StyledProperty<IBrush?> FillProperty =
         AvaloniaProperty.Register<Connector, IBrush?>(nameof(Fill));
@@ -120,16 +120,17 @@ public class Connector : TemplatedControl, IDisposable
     protected virtual void HandlePointerReleased(object? sender, PointerReleasedEventArgs args)
     {
     }
-   
+
     protected virtual void RaiseConnectionStartEvent(Connector? connector, Point? anchor)
     {
     }
-    
-    protected virtual void RaiseConnectionDragEvent(Connector? connector, Point? anchor ,Vector? offset)
+
+    protected virtual void RaiseConnectionDragEvent(Connector? connector, Point? anchor, Vector? offset)
     {
     }
 
-    protected virtual void RaiseConnectionCompletedEvent(Connector? connector, Point? inAnchor, Guid? inNodeId, Point? outAnchor, Guid? outNodeId)
+    protected virtual void RaiseConnectionCompletedEvent(Connector? connector, Point? inAnchor, Guid? inNodeId,
+        Point? outAnchor, Guid? outNodeId)
     {
     }
     
