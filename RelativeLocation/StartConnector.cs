@@ -249,6 +249,15 @@ public sealed class OutConnector : Connector, ILocatable
             outAnchor, outNodeId);
         RaiseEvent(args);
     }
+    /*protected override void RaiseConnectionCompletedEvent(Connector? connector, Guid? nodeId, Point? inAnchor,
+        Guid? inNodeId,
+        Point? outAnchor, Guid? outNodeId)
+    {
+        var args = new PendingConnectionEventArgs(PendingConnectionCompletedEvent, connector, nodeId, inAnchor,
+            inNodeId,
+            outAnchor, outNodeId);
+        RaiseEvent(args);
+    }*/
 
     #endregion
 

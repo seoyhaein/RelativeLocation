@@ -1,12 +1,6 @@
 using Avalonia;
 using Avalonia.Input;
 using System;
-using System.Diagnostics;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
-using Avalonia.Controls;
-using Avalonia.Interactivity;
-using Avalonia.Media;
 
 namespace RelativeLocation;
 
