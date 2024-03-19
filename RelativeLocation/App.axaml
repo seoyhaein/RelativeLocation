@@ -1,4 +1,4 @@
-<Appltion xmlns="https://github.com/avaloniaui"
+<Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="RelativeLocation.App"
              RequestedThemeVariant="Default">
@@ -11,4 +11,4 @@
         <StyleInclude Source="PendingConnection.axaml"/>
         <StyleInclude Source="DAGlynEditor.axaml"/>
     </Application.Styles>
-</Appltion>
+</Application>
