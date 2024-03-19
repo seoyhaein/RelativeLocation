@@ -223,19 +223,21 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
             .DisposeWith(_disposables);
 
         // 이벤트 핸들러 등록
+        // PendingConnection
         AddHandler(Connector.PendingConnectionStartedEvent, _connectionStartedHandler);
         AddHandler(Connector.PendingConnectionDragEvent, _connectionDragHandler);
         AddHandler(Connector.PendingConnectionCompletedEvent, _connectionCompleteHandler);
-
+        // Connection Changed
         AddHandler(Node.ConnectionChangedEvent, _connectionChangedHandler);
 
         // 이벤트 핸들러 해제
         _disposables.Add(Disposable.Create(() =>
         {
+            // PendingConnection
             RemoveHandler(Connector.PendingConnectionStartedEvent, _connectionStartedHandler);
             RemoveHandler(Connector.PendingConnectionDragEvent, _connectionDragHandler);
             RemoveHandler(Connector.PendingConnectionCompletedEvent, _connectionCompleteHandler);
-
+            // Connection Changed
             AddHandler(Node.ConnectionChangedEvent, _connectionChangedHandler);
         }));
     }
@@ -295,60 +297,17 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
 
             args.Handled = true;
         }
-
         Debug.WriteLine("Ok!!!");
     }
     // TODO 중요 여기 반드시 살펴보기
     private void HandleConnectionDrag(object? sender, PendingConnectionEventArgs args)
     {
-        // TODO 버그 있음. 
+        // TODO 버그 있음. 살펴보기. 
         if (IsVisiblePendingConnection)
         {
             if (args.Offset.HasValue)
-            {
                 TargetAnchor = new Point(args.Offset.Value.X, args.Offset.Value.Y);
-            }
-
             args.Handled = true;
-
-            // TODO 아래 코드는 좀더 생각하자. 해당 코드 정검 후 지우기
-            //TargetAnchor = new Point(e.Anchor.X + e.OffsetX, e.Anchor.Y + e.OffsetY);
-
-            /*if (Editor != null && (EnablePreview || EnableSnapping))
-            {
-                // Look for a potential connector
-                FrameworkElement? connector = GetPotentialConnector(Editor, AllowOnlyConnectors);
-
-                // Update the connector's anchor and snap to it if snapping is enabled
-                if (EnableSnapping && connector is Connector target)
-                {
-                    target.UpdateAnchor();
-                    TargetAnchor = target.Anchor;
-                }
-
-                // If it's not the same connector
-                if (connector != _previousConnector)
-                {
-                    if (_previousConnector != null)
-                    {
-                        SetIsOverElement(_previousConnector, false);
-                    }
-
-                    // And we have a connector
-                    if (connector != null)
-                    {
-                        SetIsOverElement(connector, true);
-
-                        // Update the preview target if enabled
-                        if (EnablePreview)
-                        {
-                            PreviewTarget = connector.DataContext;
-                        }
-                    }
-
-                    _previousConnector = connector;
-                }
-            }*/
         }
     }
 

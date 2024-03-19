@@ -197,22 +197,22 @@ public class Node : BaseNode
         {
             // 최종 업데이트 된 위치 적용.
             // TODO 아래 내용 필요 없을 듯 하다. 코드 정리 후 테스트 진행.
-            this.Location = _temporaryNewPosition;
+            //this.Location = _temporaryNewPosition;
 
             // Anchors update
-            Point? oldStartAnchor = StartAnchor;
-            Point? oldEndAnchor = EndAnchor;
+            //Point? oldStartAnchor = StartAnchor;
+            //Point? oldEndAnchor = EndAnchor;
             // node 의 StartAnchor, EndAnchor 는 여기서 업데이트 해줌.
             //(InAnchor, OutAnchor) = UpdateAnchors(InAnchor, OutAnchor, _temporaryNewPosition);
-            (StartAnchor, EndAnchor) = FindAnchors(_temporaryNewPosition);
+            //(StartAnchor, EndAnchor) = FindAnchors(_temporaryNewPosition);
             // TODO StartAnchor, EndAnchor 는 null 일 수 없다. 이거 정리하자. 일단 이렇게 둠.
-            if (StartAnchor == null || EndAnchor == null)
-                throw new InvalidOperationException(
-                    "InAnchor and OutAnchor must be updated successfully and cannot be null after moving the node.");
+            //if (StartAnchor == null || EndAnchor == null)
+            //    throw new InvalidOperationException(
+            //        "InAnchor and OutAnchor must be updated successfully and cannot be null after moving the node.");
 
             // 추가
-            RaiseConnectionChangedEvent(_id, this.Location, StartAnchor, oldStartAnchor, EndAnchor, oldEndAnchor,
-                DAGItemsType.RunnerNode);
+            //RaiseConnectionChangedEvent(_id, this.Location, StartAnchor, oldStartAnchor, EndAnchor, oldEndAnchor,
+            //    DAGItemsType.RunnerNode);
             Debug.Print("Finish");
             args.Pointer.Capture(null);
             this.IsDragging = false;
