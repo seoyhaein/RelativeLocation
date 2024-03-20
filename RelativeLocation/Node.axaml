@@ -40,18 +40,18 @@
 
                             <!-- 왼쪽 구획 -->
                             <!--<Rectangle Grid.Column="0" Fill="#4d4d4d"/> -->
-                            <controls:EndConnector Grid.Column="0"
+                            <controls:TargetConnector Grid.Column="0"
                                                   NodeId="{TemplateBinding Id}"
-                                                  Anchor="{TemplateBinding EndAnchor}" />
+                                                  Anchor="{TemplateBinding TargetAnchor}" />
                             <!--<StackPanel Grid.Column="0">
                                 <TextBlock Text="Left Node" Foreground="WhiteSmoke" Margin="5" />
                                 ~1~ 왼쪽 포트들을 추가할 수 있음 @1@
                             </StackPanel>-->
 
                             <!-- 오른쪽 구획 -->
-                            <controls:StartConnector Grid.Column="2"
+                            <controls:SourceConnector Grid.Column="2"
                                                    NodeId="{TemplateBinding Id}"
-                                                   Anchor="{TemplateBinding StartAnchor}" />
+                                                   Anchor="{TemplateBinding SourceAnchor}" />
                             <!--<StackPanel Grid.Column="2">
                                 <TextBlock Text="Right Node" Foreground="WhiteSmoke" Margin="5"/>
                                 ~1~ 오른쪽 포트들을 추가할 수 있음 @1@

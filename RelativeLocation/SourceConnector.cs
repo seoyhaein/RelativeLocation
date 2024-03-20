@@ -8,7 +8,7 @@ using Avalonia.Controls.Primitives;
 namespace RelativeLocation;
 
 // TODO 코드 정리 필요. 
-public sealed class StartConnector : Connector
+public sealed class SourceConnector : Connector
 {
     protected override Type StyleKeyOverride => typeof(Connector);
 
@@ -18,7 +18,7 @@ public sealed class StartConnector : Connector
     // TODO 여기서 DirectProperty 안 쓰고, AvaloniaProperty 를 쓴 이유는 외부에서 데이터를 설정해야 하기때문이다.
     // 한번 테스트 해보자. (시간날때.)
     public static readonly StyledProperty<Guid> NodeIdProperty =
-        AvaloniaProperty.Register<StartConnector, Guid>(nameof(NodeId));
+        AvaloniaProperty.Register<SourceConnector, Guid>(nameof(NodeId));
 
     public Guid NodeId
     {
@@ -30,9 +30,9 @@ public sealed class StartConnector : Connector
 
     #region Constructor
 
-    static StartConnector()
+    static SourceConnector()
     {
-        FillProperty.OverrideDefaultValue<StartConnector>(BrushResources.StartConnectorDefaultFill);
+        FillProperty.OverrideDefaultValue<SourceConnector>(BrushResources.StartConnectorDefaultFill);
     }
 
     #endregion
@@ -149,7 +149,7 @@ public sealed class StartConnector : Connector
             var currentPosition = args.GetPosition(parent);
             // 마우스 이동중 새로운 Connector 에 들어가면 null 이 아님.
             var elementUnderPointer = parent.GetControlUnderPointer<Connector>(currentPosition);
-            if (elementUnderPointer is EndConnector okConnector)
+            if (elementUnderPointer is TargetConnector okConnector)
             {
                 okConnector.Focus();
                 Debug.Print(" InConnector Pointer Released");

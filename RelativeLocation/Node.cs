@@ -31,7 +31,7 @@ public class Node : BaseNode
         get => GetValue(ParentControlProperty);
         set => SetValue(ParentControlProperty, value);
     }
-
+    // TODO 중요. 아래 내용 잊지말자. 기존 Node(GUID) 와 StartNode(int type), EndNode(int type) 는 다른 ID 쳬계를 가져갈려고 한다. 
     // Id 추가 BaseNode 에 않넣는 이유는 StartNode, EndNode 는 다른 ID 체계로 사용할려고 한다.
     private Guid _id;
 
@@ -83,16 +83,7 @@ public class Node : BaseNode
         // 생성자에서만 id 설정하도록 하였음.
         _id = Guid.NewGuid();
         this.Location = location;
-        (StartAnchor, EndAnchor) = FindAnchors(location);
-    }
-
-    // 시범적으로 만든다. 삭제 예정임.
-    public Node(Point location, Guid? id) : this()
-    {
-        // 생성자에서만 id 설정하도록 하였음.
-        if (id.HasValue) _id = id.Value;
-        this.Location = location;
-        (StartAnchor, EndAnchor) = FindAnchors(location);
+        (SourceAnchor, TargetAnchor) = FindAnchors(location);
     }
 
     #endregion
@@ -110,12 +101,13 @@ public class Node : BaseNode
         remove => RemoveHandler(ConnectionChangedEvent, value);
     }
 
-    private void RaiseConnectionChangedEvent(Guid? nodeId, Point? location, Point? startAnchor, Point? oldStartAnchor,
-        Point? endAnchor, Point? oldEndAnchor,
+    private void RaiseConnectionChangedEvent(Guid? nodeId, Point? location, Point? sourceAnchor, Point? oldSourceAnchor,
+        Point? targetAnchor, Point? oldTargetAnchor,
         DAGItemsType dagItemsType)
     {
-        var args = new ConnectionChangedEventArgs(ConnectionChangedEvent, nodeId, location, startAnchor, oldStartAnchor,
-            endAnchor, oldEndAnchor,
+        var args = new ConnectionChangedEventArgs(ConnectionChangedEvent, nodeId, location, sourceAnchor,
+            oldSourceAnchor,
+            targetAnchor, oldTargetAnchor,
             dagItemsType);
         RaiseEvent(args);
     }
@@ -176,12 +168,12 @@ public class Node : BaseNode
         _initialPointerPosition = currentPointerPosition; // 포인터 위치 업데이트
         // TODO oldData 기록할 필요 있을듯
         // 아래와 같이 null check는 해야 하지 않을까??
-        Point? oldStartAnchor = StartAnchor;
-        Point? oldEndAnchor = EndAnchor;
+        Point? oldSourceAnchor = SourceAnchor;
+        Point? oldTargetAnchor = TargetAnchor;
 
-        (StartAnchor, EndAnchor) = FindAnchors(_temporaryNewPosition);
+        (SourceAnchor, TargetAnchor) = FindAnchors(_temporaryNewPosition);
         // 추가
-        RaiseConnectionChangedEvent(_id, this.Location, StartAnchor, oldStartAnchor, EndAnchor, oldEndAnchor,
+        RaiseConnectionChangedEvent(_id, this.Location, SourceAnchor, oldSourceAnchor, TargetAnchor, oldTargetAnchor,
             DAGItemsType.RunnerNode);
 
 
@@ -195,24 +187,6 @@ public class Node : BaseNode
 
         if (sender != null && this.Equals(args.Pointer.Captured) && this.IsDragging)
         {
-            // 최종 업데이트 된 위치 적용.
-            // TODO 아래 내용 필요 없을 듯 하다. 코드 정리 후 테스트 진행.
-            //this.Location = _temporaryNewPosition;
-
-            // Anchors update
-            //Point? oldStartAnchor = StartAnchor;
-            //Point? oldEndAnchor = EndAnchor;
-            // node 의 StartAnchor, EndAnchor 는 여기서 업데이트 해줌.
-            //(InAnchor, OutAnchor) = UpdateAnchors(InAnchor, OutAnchor, _temporaryNewPosition);
-            //(StartAnchor, EndAnchor) = FindAnchors(_temporaryNewPosition);
-            // TODO StartAnchor, EndAnchor 는 null 일 수 없다. 이거 정리하자. 일단 이렇게 둠.
-            //if (StartAnchor == null || EndAnchor == null)
-            //    throw new InvalidOperationException(
-            //        "InAnchor and OutAnchor must be updated successfully and cannot be null after moving the node.");
-
-            // 추가
-            //RaiseConnectionChangedEvent(_id, this.Location, StartAnchor, oldStartAnchor, EndAnchor, oldEndAnchor,
-            //    DAGItemsType.RunnerNode);
             Debug.Print("Finish");
             args.Pointer.Capture(null);
             this.IsDragging = false;
@@ -244,11 +218,6 @@ public class Node : BaseNode
         Location = point;
         _translateTransform.X = point.X;
         _translateTransform.Y = point.Y;
-
-        /*//Anchors update
-        (InAnchor, OutAnchor)= UpdateAnchors(InAnchor, OutAnchor, point);
-        if (InAnchor == null || OutAnchor == null)
-            throw new InvalidOperationException("InAnchor and OutAnchor should not be null");*/
     }
 
     #endregion
@@ -290,20 +259,20 @@ public class Node : BaseNode
     // TODO (Thinking!!) Node 의 width 와 height 는 고정된걸로 처리한다.
     // Node 의 width, height 는 일단 값을 axaml 에 넣어둔다. 향후 이게 정해지면
     // cs 코드에 넣을 예정임. 현재는 Constants 에 넣어 놓기만 해놓았다.
-    private (Point startAnchor, Point endAnchor) FindAnchors(Point location)
+    private (Point sourceAnchor, Point targetAnchor) FindAnchors(Point location)
     {
         var offset = location;
 
-        var startAnchorX = offset.X + Constants.NodeWidth;
-        var startAnchorY = offset.Y + Constants.NodeHeight / 2;
+        var sourceAnchorX = offset.X + Constants.NodeWidth;
+        var sourceAnchorY = offset.Y + Constants.NodeHeight / 2;
 
-        var endAnchorX = offset.X;
-        var endAnchorY = offset.Y + Constants.NodeHeight / 2;
+        var targetAnchorX = offset.X;
+        var targetAnchorY = offset.Y + Constants.NodeHeight / 2;
 
-        Point startAnchor = new Point(startAnchorX, startAnchorY);
-        Point endAnchor = new Point(endAnchorX, endAnchorY);
+        Point sourceAnchor = new Point(sourceAnchorX, sourceAnchorY);
+        Point targetAnchor = new Point(targetAnchorX, targetAnchorY);
 
-        return (startAnchor, endAnchor);
+        return (sourceAnchor, targetAnchor);
     }
 
     // TODO nullable 정리하자.

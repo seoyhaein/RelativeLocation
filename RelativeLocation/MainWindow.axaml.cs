@@ -51,12 +51,7 @@ public partial class MainWindow : Window
 
     //public AvaloniaList<DAGItems> ConItems { get; set; }
 
-    public AvaloniaList<DAGItems> ConItems { get; set; } = new AvaloniaList<DAGItems>
-    {
-        new DAGItems(new Point(10, 10), DAGItemsType.RunnerNode),
-        new DAGItems(new Point(20, 20), DAGItemsType.RunnerNode),
-        new DAGItems(new Point(30, 30), DAGItemsType.RunnerNode)
-    };
+    
 
     private void Button_OnClick(object? sender, RoutedEventArgs e)
     {

@@ -1,13 +1,11 @@
 using System;
 using System.Diagnostics;
-using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using Avalonia.Collections;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml.Templates;
 
@@ -157,6 +155,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     // 이건 connector 에서 올라오는 event
     private EventHandler<PendingConnectionEventArgs>? _connectionStartedHandler;
     private EventHandler<PendingConnectionEventArgs>? _connectionDragHandler;
+
     private EventHandler<PendingConnectionEventArgs>? _connectionCompleteHandler;
 
     // 이건 node 에서 올라오는 event
@@ -169,6 +168,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
 
     // Panning 관련 포인터 위치 값 
     private Point _previousPointerPosition;
+
     private Point _currentPointerPosition;
     //private bool _isPanning;
     // 일단 이렇게 하고 이거 나중에 static constructor 에 넣자. 
@@ -180,8 +180,6 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
 
     public DAGlynEditor()
     {
-        //dag.AddDAGItem(new Point(10,10), Guid.NewGuid(), new Point(100,100), Guid.NewGuid());
-        //dag.AddDAGItem(new Point(400, 100), Guid.NewGuid(), DAGItemsType.RunnerNode);
         DataContext = dag;
         InitializeSubscriptions();
         this.Unloaded += (_, _) => this.Dispose();
@@ -267,6 +265,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
 
     private void HandlePointerReleased(object? sender, PointerReleasedEventArgs args)
     {
+        // TODO equal 쓸까??
         if (IsPanning && args.Pointer.Captured == this)
         {
             args.Pointer.Capture(null);
@@ -277,7 +276,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
 
     private void HandleConnectionStarted(object? sender, PendingConnectionEventArgs args)
     {
-        if (args.Source is StartConnector)
+        if (args.Source is SourceConnector)
         {
             IsVisiblePendingConnection = true;
 
@@ -297,8 +296,10 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
 
             args.Handled = true;
         }
+
         Debug.WriteLine("Ok!!!");
     }
+
     // TODO 중요 여기 반드시 살펴보기
     private void HandleConnectionDrag(object? sender, PendingConnectionEventArgs args)
     {
@@ -313,49 +314,49 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
 
     private void HandleConnectionComplete(object? sender, PendingConnectionEventArgs args)
     {
-        if (args.SourceConnector == null || args.StartAnchor == null || args.EndAnchor == null)
+        if (args.SourceConnector == null || args.SourceAnchor == null || args.TargetAnchor == null)
         {
             args.Handled = true;
             IsVisiblePendingConnection = false;
             return;
         }
 
-        // TODO (중요) 여기서 일단은 그냥 가는데, AddDAGItem 메서드들에 대한 정리는 반드시 필요. 최적화 필요.
         // 선추가하는 구문.
-        dag.AddDAGItem(args.StartAnchor, args.InNodeId, args.EndAnchor, args.OutNodeId);
+        dag.AddDAGConnectionItem(args.SourceAnchor, args.SourceNodeId, args.TargetAnchor, args.TargetNodeId);
         args.Handled = true;
         IsVisiblePendingConnection = false;
     }
-    
+
     private void HandleConnectionChanged(object? sender, ConnectionChangedEventArgs args)
     {
         foreach (var item in dag.DAGItemsSource)
         {
-            if (item.StartAnchor == args.OldStartAnchor || item.EndAnchor == args.OldEndAnchor)
+            // node 도 변경되지만 connection 도 변경됨.
+            // dag 데이터 변경은 node 나 connection 에서는 하지 않음. 명심.
+            if (item.NodeItem != null)
             {
-                if (item.Vertex != null)
+                if (item.NodeItem.NodeId == args.NodeId)
                 {
-                    // TODO UpdateRending 관련 메서드 수정 필요.
-                    if (args.StartAnchor.HasValue && args.EndAnchor.HasValue)
-                    {
-                        // TODO 아래 코드에 버그 있음.
-                        //item.Vertex.UpdateRending(args.StartAnchor.Value, args.EndAnchor.Value);
-                        item.Vertex.UpdateEnd(args.EndAnchor.Value);
-                        Debug.WriteLine("OutAnchor:");
-                        Debug.WriteLine(args.StartAnchor.Value);
-                        Debug.WriteLine("InAnchor:");
-                        Debug.WriteLine(args.EndAnchor.Value);
+                    // 노드 업데이트
+                    item.NodeItem.Location = args.Location;
+                    item.NodeItem.SourceAnchor = args.SourceAnchor;
+                    item.NodeItem.TargetAnchor = args.TargetAnchor;
+                }
+            }
 
-                        // update
-                        item.StartAnchor = args.StartAnchor.Value;
-                        item.EndAnchor = args.EndAnchor.Value;
+            var connectionItem = item.ConnectionItem;
+            if (connectionItem?.ConnectionInstance != null)
+            {
+                if (args.SourceAnchor.HasValue && connectionItem.SourceAnchor == args.OldSourceAnchor)
+                {
+                    connectionItem.ConnectionInstance.UpdateStart(args.SourceAnchor.Value);
+                    connectionItem.SourceAnchor = args.SourceAnchor.Value;
+                }
 
-                        // check 디버깅 위해서 이후 삭제
-                        if (item.Vertex.Source == item.StartAnchor)
-                            Debug.WriteLine("start 동일");
-                        if (item.Vertex.Target == item.EndAnchor)
-                            Debug.WriteLine("end 동일");
-                    }
+                if (args.TargetAnchor.HasValue && connectionItem.TargetAnchor == args.OldTargetAnchor)
+                {
+                    connectionItem.ConnectionInstance.UpdateEnd(args.TargetAnchor.Value);
+                    connectionItem.TargetAnchor = args.TargetAnchor.Value;
                 }
             }
         }
@@ -411,68 +412,40 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
             throw new InvalidOperationException("PART_TopLayer cannot be found in the template.");
     }
 
-    // TODO 아래 코드에서 따로 메서드를 빼놓는 것을 생각하자.
-    // Connection 에는 id 관련해서는 넣지 않았다.
     /// <inheritdoc />
     protected override Control CreateContainerForItemOverride(object? item, int index, object? recycleKey)
     {
-        // 중요! Node 생성자에서 자동으로 Guid 를 만들어 준다.
         if (item is DAGItems dagItems)
         {
-            // TODO (중요) 일단 nodeid 를 생성해주는 것을 여기서 해주자. 노드를 생성
-            // 해주는 부분이 없어서 땜빵코드로 일단 넣어두었다.
-            if (dagItems.DAGItemType == DAGItemsType.RunnerNode)
-                if (dagItems.Location.HasValue)
+            if (dagItems.NodeItem != null)
+            {
+                if (dagItems.NodeItem.Location.HasValue)
                 {
-                    // 아래 땜빵 코드
-                    // TODO 좀더 친절히 할 필요는 있을것 같다. InAnchor, OutAnchor 최조 만들어줄때.
-                    // Node 의 인스턴스도 넣어줄 필요가 있을듯하다. 일단 여기서는 생략.
-                    var node = new Node(dagItems.Location.Value, dagItems.NodeId);
-                    // 이거 디버깅 해보자.
-                    // 아 땜빵 코드 고칠거 많다.
-                    if (!dagItems.StartAnchor.HasValue)
-                    {
-                        dagItems.StartAnchor = node.StartAnchor;
-                    }
-
-                    if (!dagItems.EndAnchor.HasValue)
-                    {
-                        dagItems.EndAnchor = node.EndAnchor;
-                    }
-
+                    // 여기서 실제로 SourceAnchor, TargetAnchor 가 생성된다.
+                    var node = new Node(dagItems.NodeItem.Location.Value);
+                    dagItems.NodeItem.SourceAnchor = node.SourceAnchor;
+                    dagItems.NodeItem.TargetAnchor = node.TargetAnchor;
+                    dagItems.NodeItem.NodeInstance = node;
 
                     return node;
                 }
+            }
 
-            //TODO 확인해야함. 중요! Node 생성된후에 추가될 수 있다.
-            if (dagItems.DAGItemType == DAGItemsType.Connection)
-                if (dagItems.StartAnchor.HasValue && dagItems.EndAnchor.HasValue)
+            if (dagItems.ConnectionItem != null)
+            {
+                if (dagItems.ConnectionItem.SourceAnchor.HasValue && dagItems.ConnectionItem.TargetAnchor.HasValue)
                 {
-                    // TODO 실험적 코드, 아직은 인스턴스를 구별할 수 있는 키도 없다.
-                    var connection = new Connection(dagItems.StartAnchor.Value, dagItems.EndAnchor.Value);
-                    // TODO 실제로 DAGItems 에서 반영되는지 확인해야 함.
-                    dagItems.Vertex = connection;
+                    var connection = new Connection(dagItems.ConnectionItem.SourceAnchor.Value,
+                        dagItems.ConnectionItem.TargetAnchor.Value);
+
+                    dagItems.ConnectionItem.ConnectionInstance = connection;
+
                     return connection;
                 }
+            }
         }
 
         var emptyControl = new ContentControl { IsVisible = false };
         return emptyControl;
-    }
-
-    // 컨테이너 설정
-    // 컨테이너를 바로 Node 로 설정해주는 것도 가능할 것으로 판단된다.
-    // 일단 주석으로 남겨 놓았는데, 움직임을 구현하기 위해서는 남겨놓는다.
-    /// <inheritdoc />
-    protected override void PrepareContainerForItemOverride(Control container, object? item, int index)
-    {
-        /*if (container is Node myContainer)
-            myContainer.Location = new Point(10, 10);
-
-        if (container is InConnector inConnector && item is TestConnector inCon)
-            inConnector.Location = inCon.Location;
-
-        if (container is OutConnector outConnector && item is TestConnector outCon)
-            outConnector.Location = outCon.Location;*/
     }
 }

@@ -433,20 +433,20 @@ namespace RelativeLocation
             }
         }
 
-        public void UpdateRending(Point start, Point end)
+        public void UpdateConnection(Point start, Point end)
         {
             Source = start;
             Target = end;
         }
 
-        public void UpdateStart(Point start)
+        public void UpdateStart(Point source)
         {
-            Source = start;
+            Source = source;
         }
 
-        public void UpdateEnd(Point end)
+        public void UpdateEnd(Point target)
         {
-            Target = end;
+            Target = target;
         }
 
         #endregion

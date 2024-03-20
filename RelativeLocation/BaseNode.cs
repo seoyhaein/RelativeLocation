@@ -21,29 +21,29 @@ public class BaseNode : ContentControl, IDisposable, ILocatable
         get => GetValue(LocationProperty);
         set => SetValue(LocationProperty, value);
     }
-    
-    public static readonly StyledProperty<Point?> StartAnchorProperty =
-        AvaloniaProperty.Register<BaseNode, Point?>(nameof(StartAnchor));
-    
+
+    public static readonly StyledProperty<Point?> SourceAnchorProperty =
+        AvaloniaProperty.Register<BaseNode, Point?>(nameof(SourceAnchor));
+
     /// <summary>
     /// StartNode는 OutAnchor 가 있고 EndNode 는 InAnchor 가 있다.
     /// 일반 Node 는 OutAnchor 와 InAnchor 가 있다. 
     /// </summary>
-    public Point? StartAnchor
+    public Point? SourceAnchor
     {
-        get => GetValue(StartAnchorProperty);
-        set => SetValue(StartAnchorProperty, value);
+        get => GetValue(SourceAnchorProperty);
+        set => SetValue(SourceAnchorProperty, value);
     }
-    
-    public static readonly StyledProperty<Point?> EndAnchorProperty =
-        AvaloniaProperty.Register<BaseNode, Point?>(nameof(EndAnchor));
 
-    public Point? EndAnchor
+    public static readonly StyledProperty<Point?> TargetAnchorProperty =
+        AvaloniaProperty.Register<BaseNode, Point?>(nameof(TargetAnchor));
+
+    public Point? TargetAnchor
     {
-        get => GetValue(EndAnchorProperty);
-        set => SetValue(EndAnchorProperty, value);
+        get => GetValue(TargetAnchorProperty);
+        set => SetValue(TargetAnchorProperty, value);
     }
-    
+
     #endregion
 
     #region Fields
@@ -55,8 +55,7 @@ public class BaseNode : ContentControl, IDisposable, ILocatable
     protected Point InitialPointerPosition;
     protected Point PreviousPointerPosition;
     protected Point CurrentPointerPosition;
-    //protected Point DraggedPosition;
-    
+
     #endregion
 
     #region Constructors
@@ -102,7 +101,7 @@ public class BaseNode : ContentControl, IDisposable, ILocatable
     protected virtual void HandlePointerReleased(object? sender, PointerReleasedEventArgs args)
     {
     }
-    
+
     protected virtual void HandleLoaded(object? sender, RoutedEventArgs args)
     {
     }
@@ -110,14 +109,14 @@ public class BaseNode : ContentControl, IDisposable, ILocatable
     #endregion
 
     #region methods
-    
+
     //TODO Dispose 관련해서 테스트 해봐야 함.
     public void Dispose()
     {
         Dispose(true);
         GC.SuppressFinalize(this); // 종료자 호출 억제
     }
-    
+
     protected virtual void Dispose(bool disposing)
     {
         if (disposing)
