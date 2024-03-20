@@ -4,7 +4,7 @@ using System;
 
 namespace RelativeLocation;
 
-public sealed class EndConnector : Connector
+public sealed class TargetConnector : Connector
 {
     protected override Type StyleKeyOverride => typeof(Connector);
     
@@ -14,7 +14,7 @@ public sealed class EndConnector : Connector
     // TODO 여기서 DirectProperty 안 쓰고, AvaloniaProperty 를 쓴 이유는 외부에서 데이터를 설정해야 하기때문이다.
     // 한번 테스트 해보자. (시간날때.)
     public static readonly StyledProperty<Guid> NodeIdProperty =
-        AvaloniaProperty.Register<EndConnector, Guid>(nameof(NodeId));
+        AvaloniaProperty.Register<TargetConnector, Guid>(nameof(NodeId));
 
     public Guid NodeId
     {
@@ -24,13 +24,13 @@ public sealed class EndConnector : Connector
     
     #endregion
     
-    static EndConnector()
+    static TargetConnector()
     {
         // TODO 향후 이거 주석처리한다.
         // UI 바꿀때, Background 속성 변경.
         //BackgroundProperty.OverrideDefaultValue<InConnector>(new SolidColorBrush(Color.Parse("#4d4d4d")));
         //FocusableProperty.OverrideDefaultValue<InConnector>(true);
-        FillProperty.OverrideDefaultValue<EndConnector>(BrushResources.EndConnectorDefaultFill);
+        FillProperty.OverrideDefaultValue<TargetConnector>(BrushResources.EndConnectorDefaultFill);
     }
 
     protected override void HandlePointerPressed(object? sender, PointerPressedEventArgs args)
