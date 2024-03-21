@@ -4,6 +4,7 @@ using Avalonia.Interactivity;
 
 namespace RelativeLocation;
 
+// TODO 코드 정리 필요.
 // 클래스 설명을 추가 필요
 // TODO 아래 구분해줄 필요가 있을지 의문이지만 일단 이렇게 한다.
 // Anchor 는 처음 위치

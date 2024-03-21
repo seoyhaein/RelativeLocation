@@ -9,6 +9,7 @@
         <entry key="RelativeLocation/MainWindow.axaml" value="RelativeLocation/RelativeLocation.csproj" />
         <entry key="RelativeLocation/Node.axaml" value="RelativeLocation/RelativeLocation.csproj" />
         <entry key="RelativeLocation/PendingConnection.axaml" value="RelativeLocation/RelativeLocation.csproj" />
+        <entry key="RelativeLocation/Themes.axaml" value="RelativeLocation/RelativeLocation.csproj" />
       </map>
     </option>
   </component>

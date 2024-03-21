@@ -29,11 +29,14 @@
                     </Setter>
                     <Setter Property="Template">
                         <ControlTemplate>
+                            <!-- TODO 생각해보기. -->
+                            <!-- 아래 패딩 때문에 짤리는 부분이 있는 것 같지만 일단 지우지는 않는다. -->
+                            <!-- SmallGridLinesBrush 를 지금은 최상위 Canvas 의 배경으로 집어 넣었는데 다른 곳에 넣을지 살펴본다. -->
                             <Border Background="{TemplateBinding Background}"
                                     BorderBrush="{TemplateBinding BorderBrush}"
                                     BorderThickness="{TemplateBinding BorderThickness}" 
                                     Padding="10">
-                                <Canvas x:Name="PART_TopLayer">
+                                <Canvas x:Name="PART_TopLayer" Background="{DynamicResource SmallGridLinesBrush}">
                                     <ItemsPresenter x:Name="PART_ItemsPresenter">
                                         <ItemsPresenter.ItemsPanel>
                                         <ItemsPanelTemplate>

@@ -9,6 +9,7 @@ using Avalonia.Media;
 
 namespace RelativeLocation;
 
+// TODO 아래 내용 구현해야함.
 /*
  * 새롭게 Reload 할 경우 위치에 대한 변경을 해줘야 한다.
  * Location 이 최종적으로 변할때 이것을 기록하고 UI 변경사항을 남겨야 한다.

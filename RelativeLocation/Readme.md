@@ -23,20 +23,28 @@
 ~~- Connection 연결선 Layer 만들어 주기 및 속성 추가. Connection 연결선 생성 루틴 개발~~    
 ~~- unit 테스트 에서 Dispse 관련 테스트 진행 중 dotMemory 등 사용방법 숙지가 필요 할듯하다. 계속 실폐 중~~
 ~~- 이벤트에 따라 Connection 추가하기~~  
-- Panning 시 Connection 의 잔상이 남는 버그 처리해야함. 
+~~- Panning 시 Connection 의 잔상이 남는 버그 처리해야함.~~ 
 ~~- 버그 수정~~  
 ~~- Node 에서 Anchor 2 개가 설정되어야 한다.(In/Out) 이게 Connector 의 Anchor 에 바인딩 하는 형태로 가야 한다.~~    
-- StartNode 는 Anchor(Out) 하나 있고, EndNode 도 Anchor(In) 하나 있다. 
+~~- StartNode 는 Anchor(Out) 하나 있고, EndNode 도 Anchor(In) 하나 있다.~~ 
 ~~- 대략적으로 완성했지만 버그 있음. 버그는 내일 고치자 (2/29) Unloaded 처리 부분도 생각하자.~~    
-- Node 위치 변경 시, 최종적으로 해당 위치를 업데이트는 하는 부분을 넣어두고 이것을 토대로 Anchor 계산하는 코드를 적용하자.
+~~- Node 위치 변경 시, 최종적으로 해당 위치를 업데이트는 하는 부분을 넣어두고 이것을 토대로 Anchor 계산하는 코드를 적용하자.~~
 - 위의 내용 구현 후 테스트 좀 잘하고 github 업데이트 하자. 된장.   
-- 새로운 버그 Node 의 특정 위치에서 이동이 이상하게 나타남. 그리고 "invalid transform string" 라는 이상이 나타남.    
-- Canvas 와 EditorCanvas, LayoutCanvas 의 Bound 를 살펴보기로 한다. 이거 정검한번 해야함. 일단 버그는 여기서 발생한 문제는 아니다.  
-- 하지만, 위의 코드는 한번 살펴보고 Bound 문제등도 한번 정검해보자. 시간날때. 일단 지우지 않고 남겨둔다.  
+~~- 새로운 버그 Node 의 특정 위치에서 이동이 이상하게 나타남. 그리고 "invalid transform string" 라는 이상이 나타남.~~    
+~~- Canvas 와 EditorCanvas, LayoutCanvas 의 Bound 를 살펴보기로 한다. 이거 정검한번 해야함. 일단 버그는 여기서 발생한 문제는 아니다.~~  
+~~- 하지만, 위의 코드는 한번 살펴보고 Bound 문제등도 한번 정검해보자. 시간날때. 일단 지우지 않고 남겨둔다.~~  
 ~~- Avalonia.Controls.Primitives 에서 https://reference.avaloniaui.net/api/Avalonia.Controls.Primitives/Thumb/BE3BA1F0~~
-~~- 위의 코드 살펴보고, node 의 drag 를 개선하자. 현재 마우스 고속으로 움직였을때 화면 튀는 현상 발생한다.~~
-## 코드 정리 순서
+~~- 위의 코드 살펴보고, node 의 drag 를 개선하자. 현재 마우스 고속으로 움직였을때 화면 튀는 현상 발생한다.~~  
+- 여러 노드를 추가 하는 구문을 넣어야 함.    
+- 노드의 삭제, connection 의 삭제를 넣어야 함.    
+- 노드 이동시 잔상 남는 현상 해결 해야 함.    
+- 선 연결시 미세한 버그 있음.  
+- 노드를 생성하기 위한 UI 를 생각하자.  
+- 리소스 정리하자.  
+~~- 1 차적으로 에디터에 배경 집어 넣는 것을 완성했는데, 추가적인 모양들을 넣어야 할 것 같다.~~  
+- Rider 에서 UI 보여주는 화면과 비슷하게 만들자.
 
+## 지속적으로 TODO 정리하자.  
 ## 벤치마킹
 - Pro .NET Benchmarking 책 읽고 싶다. T.T
 - https://github.com/dotnet/BenchmarkDotNet

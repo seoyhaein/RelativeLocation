@@ -1,4 +1,17 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="20">
+            <Canvas Width="200" Height="200" Background="{DynamicResource SmallGridLinesBrush}" />
+
+        </Border>
+    </Design.PreviewWith>
     <!-- Add Resources Here -->
+    <!--일단 추가적으로 생각해보자. 사각형 안에 사각형을 넣는 것도 생각을 해보자.-->
+    <SolidColorBrush x:Key="GridLinesBrush" Color="#D3D3D3" />
+    <VisualBrush x:Key="SmallGridLinesBrush" TileMode="Tile" SourceRect="0,0,20,20" DestinationRect="0,0,20,20">
+        <VisualBrush.Visual>
+            <Path Stroke="{StaticResource GridLinesBrush}" StrokeThickness="1" Data="M 0,0 L 0,20 L 20,20 L 20,0 Z" />
+        </VisualBrush.Visual>
+    </VisualBrush>
 </ResourceDictionary>

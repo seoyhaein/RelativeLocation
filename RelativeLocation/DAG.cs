@@ -18,6 +18,7 @@ public class DAG
     {
         // 테스트 위해 넣어둠.
         AddDAGNodeItem(new Point(10, 10));
+        AddDAGNodeItem(new Point(200, 280));
         AddDAGNodeItem(new Point(300, 300));
     }
     
