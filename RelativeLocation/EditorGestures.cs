@@ -1,6 +1,8 @@
+using Avalonia.Input;
+
 namespace RelativeLocation;
 
-public class EditorGestures
+public static class EditorGestures
 {
-    
+    public static KeyGesture Delete { get; set; } = new KeyGesture(Key.Delete);
 }

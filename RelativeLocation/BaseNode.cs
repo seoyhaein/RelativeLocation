@@ -88,6 +88,12 @@ public class BaseNode : ContentControl, IDisposable, ILocatable
                 h => this.PointerReleased -= h)
             .Subscribe(args => HandlePointerReleased(args.Sender, args.EventArgs))
             .DisposeWith(_disposables);
+        
+        /*Observable.FromEventPattern<KeyEventArgs>(
+                h => this.KeyDown += h, 
+                h => this.KeyDown -= h) 
+            .Subscribe(args => HandleKeyDown(args.Sender, args.EventArgs))
+            .DisposeWith(_disposables); */
     }
 
     protected virtual void HandlePointerPressed(object? sender, PointerPressedEventArgs args)
@@ -101,6 +107,10 @@ public class BaseNode : ContentControl, IDisposable, ILocatable
     protected virtual void HandlePointerReleased(object? sender, PointerReleasedEventArgs args)
     {
     }
+    
+    /*protected virtual void HandleKeyDown(object? sender, KeyEventArgs args)
+    {
+    }*/
 
     protected virtual void HandleLoaded(object? sender, RoutedEventArgs args)
     {
@@ -117,7 +127,7 @@ public class BaseNode : ContentControl, IDisposable, ILocatable
         GC.SuppressFinalize(this); // 종료자 호출 억제
     }
 
-    protected virtual void Dispose(bool disposing)
+    public virtual void Dispose(bool disposing)
     {
         if (disposing)
         {
@@ -125,6 +135,12 @@ public class BaseNode : ContentControl, IDisposable, ILocatable
             _disposables.Dispose();
         }
         // 관리되지 않는 자원 해제 코드가 필요한 경우 여기에 추가
+    }
+
+    public void Hide()
+    {
+        if (IsVisible)
+            IsVisible = false;
     }
 
     // 종료자

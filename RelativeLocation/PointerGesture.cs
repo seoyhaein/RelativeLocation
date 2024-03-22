@@ -44,10 +44,8 @@ public class PointerGesture
     {
         // source가 Visual 타입이 아니면, 조건에 맞지 않으므로 바로 false 반환
         if (source is not Visual targetElement)
-        {
             return false;
-        }
-
+        
         // 이벤트로부터 필요한 정보 추출
         var pointerProperties = eventArgs.GetCurrentPoint(targetElement).Properties;
         bool modifiersMatch = (eventArgs.KeyModifiers & _keyModifiers) == _keyModifiers; // 키 수정자가 일치하는지 검사
@@ -62,45 +60,6 @@ public class PointerGesture
         // 모든 조건이 true일 때만 true 반환
         return modifiersMatch && pointerUpdateKindMatch && counterMatch;
     }
-
-
-/*
-    public bool Matches(object source, PointerEventArgs eventArgs)
-    {
-        if (!(source is Visual targetElement))
-            return false;
-
-        var currentPoint = eventArgs.GetCurrentPoint(targetElement).Properties;
-        bool modifiersMatch = (eventArgs.KeyModifiers & _keyModifiers) == _keyModifiers;
-        bool pointerUpdateKindMatch = currentPoint.PointerUpdateKind == _pointerUpdateKind;
-
-        bool counterMatch = true;
-        if (eventArgs is PointerPressedEventArgs pressedEventArgs)
-            if (pressedEventArgs.ClickCount != _counter)
-                counterMatch = false;
-
-        return modifiersMatch && pointerUpdateKindMatch && counterMatch;
-    }
-  */
-    /*
-     *public bool Matches(object source, PointerEventArgs eventArgs)
-{
-    if (source is not Visual targetElement)
-        return false;
-
-    var currentPoint = eventArgs.GetCurrentPoint(targetElement).Properties;
-    bool modifiersMatch = (eventArgs.KeyModifiers & _keyModifiers) == _keyModifiers;
-    bool pointerUpdateKindMatch = currentPoint.PointerUpdateKind == _pointerUpdateKind;
-
-    // 이 부분의 로직이 잘못되었습니다. 정확한 로직은 다음과 같습니다.
-    bool counterMatch = !(eventArgs is PointerPressedEventArgs pressedEventArgs) 
-                        || pressedEventArgs.ClickCount == _counter;
-
-    return modifiersMatch && pointerUpdateKindMatch && counterMatch;
-}
-
-     * 
-     */
-
+    
     #endregion
 }

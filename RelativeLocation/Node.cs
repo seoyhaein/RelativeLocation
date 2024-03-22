@@ -32,6 +32,7 @@ public class Node : BaseNode
         get => GetValue(ParentControlProperty);
         set => SetValue(ParentControlProperty, value);
     }
+
     // TODO 중요. 아래 내용 잊지말자. 기존 Node(GUID) 와 StartNode(int type), EndNode(int type) 는 다른 ID 쳬계를 가져갈려고 한다. 
     // Id 추가 BaseNode 에 않넣는 이유는 StartNode, EndNode 는 다른 ID 체계로 사용할려고 한다.
     private Guid _id;
@@ -60,7 +61,6 @@ public class Node : BaseNode
     private Point _initialPointerPosition; // 드래그 시작 시 마우스 포인터의 위치
     private Point _initialNodePosition; // 드래그 시작 시 노드의 위치
     private Point _temporaryNewPosition; // 노드의 임시 위치
-
     private Vector _dragAccumulator; // 드래그 동안의 누적 이동 거리
 
     // TODO 이름 조정
@@ -69,21 +69,21 @@ public class Node : BaseNode
     #endregion
 
     //TODO Node 삭제되는 것도 신경써야 한다.
-
     #region Constructor
 
     public Node()
     {
+        Focusable = true;
         // 초기 설정에서 TranslateTransform 객체를 RenderTransform으로 설정
-        this.RenderTransform = _translateTransform;
+        RenderTransform = _translateTransform;
         _disposable = ParentControlProperty.Changed.Subscribe(HandleParentControlChanged);
     }
 
     public Node(Point location) : this()
     {
         // 생성자에서만 id 설정하도록 하였음.
-        _id = Guid.NewGuid();
-        this.Location = location;
+        //_id = Guid.NewGuid();
+        Location = location;
         (SourceAnchor, TargetAnchor) = FindAnchors(location);
     }
 
@@ -119,12 +119,12 @@ public class Node : BaseNode
 
     protected override void HandlePointerPressed(object? sender, PointerPressedEventArgs args)
     {
-        if (this.ParentControl == null)
+        if (ParentControl == null)
             throw new InvalidOperationException("Node cannot move because a DAGlynEditorCanvas parent is not found.");
 
         if (args.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
         {
-            Focus();
+            //Focus();
             args.Pointer.Capture(this);
             Debug.Print("Dragging Start");
             // 드래그 시작 시의 마우스 포인터 위치와 노드의 현재 위치를 저장.
@@ -132,17 +132,17 @@ public class Node : BaseNode
             _initialNodePosition = this.Location; // 현재 노드의 위치를 초기 위치로 설정
             // 여기서 초기화 시켜주는 것이 바람직할 것같다.
             _dragAccumulator = new Vector(); // 드래그 누적 거리 초기화
-            this.IsDragging = true;
+            IsDragging = true;
             args.Handled = true;
         }
     }
 
     protected override void HandlePointerMoved(object? sender, PointerEventArgs args)
     {
-        if (this.ParentControl == null)
+        if (ParentControl == null)
             throw new InvalidOperationException("Node cannot move because a DAGlynEditorCanvas parent is not found.");
 
-        if (!this.IsDragging || !this.Equals(args.Pointer.Captured)) return;
+        if (!IsDragging || !this.Equals(args.Pointer.Captured)) return;
 
         Debug.Print("Dragging...");
         var currentPointerPosition = args.GetPosition(ParentControl);
@@ -194,6 +194,22 @@ public class Node : BaseNode
             args.Handled = true;
         }
     }
+
+    /*protected override void HandleKeyDown(object? sender, KeyEventArgs args)
+    {
+        // TODO 현재 IsFocused 이 조건이 필요한지는 살펴봐야 함.
+        if (IsFocused)
+        {
+            var isMatch = EditorGestures.Delete.Matches(args);
+            if (isMatch)
+            {
+                Debug.WriteLine("Match");
+                args.Handled = true;
+            }
+        }
+
+        
+    }*/
 
     // TODO 향후 삭제 예정.
     protected override void HandleLoaded(object? sender, RoutedEventArgs args)
@@ -251,7 +267,7 @@ public class Node : BaseNode
     }
 
     // TODO 살펴보자.
-    protected override void Dispose(bool disposing)
+    public override void Dispose(bool disposing)
     {
         _disposable.Dispose();
         base.Dispose(disposing);

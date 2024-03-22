@@ -36,7 +36,8 @@
 ~~- Avalonia.Controls.Primitives 에서 https://reference.avaloniaui.net/api/Avalonia.Controls.Primitives/Thumb/BE3BA1F0~~
 ~~- 위의 코드 살펴보고, node 의 drag 를 개선하자. 현재 마우스 고속으로 움직였을때 화면 튀는 현상 발생한다.~~  
 - 여러 노드를 추가 하는 구문을 넣어야 함.    
-- 노드의 삭제, connection 의 삭제를 넣어야 함.  
+~~- 노드의 삭제~~   
+- connection 의 삭제를 넣어야 함.  
 - Connection 을 고도화 해야 함. 지금은 그냥 선만 넣어둔 형태임.  
 - 노드 이동시 잔상 남는 현상 해결 해야 함.    
 - 선 연결시 미세한 버그 있음.  
@@ -44,6 +45,7 @@
 - 리소스 정리하자.  
 ~~- 1 차적으로 에디터에 배경 집어 넣는 것을 완성했는데, 추가적인 모양들을 넣어야 할 것 같다.~~  
 - Rider 에서 UI 보여주는 화면과 비슷하게 만들자. (시간날때, 기능상으로는 핵심 기능은 아님)
+- node 가 focus 를 가질때 ui 변경 (구별해주어야 함.)  
 
 ## 지속적으로 TODO 정리하자.  
 ## 벤치마킹

@@ -3,7 +3,6 @@
     <Design.PreviewWith>
         <Border Padding="20">
             <Canvas Width="200" Height="200" Background="{DynamicResource SmallGridLinesBrush}" />
-
         </Border>
     </Design.PreviewWith>
     <!-- Add Resources Here -->

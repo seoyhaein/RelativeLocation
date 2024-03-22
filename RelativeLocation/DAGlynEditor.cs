@@ -155,12 +155,12 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     // 이건 connector 에서 올라오는 event
     private EventHandler<PendingConnectionEventArgs>? _connectionStartedHandler;
     private EventHandler<PendingConnectionEventArgs>? _connectionDragHandler;
-
     private EventHandler<PendingConnectionEventArgs>? _connectionCompleteHandler;
 
     // 이건 node 에서 올라오는 event
     private EventHandler<ConnectionChangedEventArgs>? _connectionChangedHandler;
 
+    // TODO 이 녀석을 static 으로 해서 전역적으로 사용할지 고민.
     private DAG dag = new DAG();
     private bool _isLoaded = true;
     private Canvas? topLayer;
@@ -220,6 +220,12 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
             .Subscribe(args => HandleLoaded(args.Sender, args.EventArgs))
             .DisposeWith(_disposables);
 
+        Observable.FromEventPattern<KeyEventArgs>(
+                h => this.KeyDown += h,
+                h => this.KeyDown -= h)
+            .Subscribe(args => HandleKeyDown(args.Sender, args.EventArgs))
+            .DisposeWith(_disposables);
+
         // 이벤트 핸들러 등록
         // PendingConnection
         AddHandler(Connector.PendingConnectionStartedEvent, _connectionStartedHandler);
@@ -266,12 +272,13 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     private void HandlePointerReleased(object? sender, PointerReleasedEventArgs args)
     {
         // TODO equal 쓸까??
-        if (IsPanning && args.Pointer.Captured == this)
-        {
-            args.Pointer.Capture(null);
-            IsPanning = false;
-            args.Handled = true;
-        }
+        if (!IsPanning || !this.Equals(args.Pointer.Captured)) return;
+        /*if (IsPanning && args.Pointer.Captured == this)
+        {*/
+        args.Pointer.Capture(null);
+        IsPanning = false;
+        args.Handled = true;
+        //}
     }
 
     private void HandleConnectionStarted(object? sender, PendingConnectionEventArgs args)
@@ -365,7 +372,6 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     }
 
     // TODO 이건 일단 어떻할지 생각해본다.
-    // 일단 디버깅 용으로 넣어둔다. 추후 삭제 검토.
     private void HandleLoaded(object? sender, RoutedEventArgs args)
     {
         if (_isLoaded)
@@ -387,6 +393,18 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
 
             // 한번만 실행되게 만드는 flag
             _isLoaded = false;
+        }
+    }
+
+    // node 에서 bubble 로 올라옴.
+    private void HandleKeyDown(object? sender, KeyEventArgs args)
+    {
+        // TODO 현재 IsFocused 이 조건이 필요한지는 살펴봐야 함.
+        if (args.Source is Node node && EditorGestures.Delete.Matches(args))
+        {
+           var r = dag.DelDAGNodeItem(node.Id);
+           if (!r) Debug.WriteLine("Failed");
+            args.Handled = true;
         }
     }
 
@@ -415,6 +433,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     /// <inheritdoc />
     protected override Control CreateContainerForItemOverride(object? item, int index, object? recycleKey)
     {
+        // TODO switch case 문이 좋을지 고민
         if (item is DAGItems dagItems)
         {
             if (dagItems.NodeItem != null)
@@ -422,11 +441,13 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
                 if (dagItems.NodeItem.Location.HasValue)
                 {
                     // 여기서 실제로 SourceAnchor, TargetAnchor 가 생성된다.
+                    // TODO 향후에 node 의 참조 해제 해야 한다.
                     var node = new Node(dagItems.NodeItem.Location.Value);
                     dagItems.NodeItem.SourceAnchor = node.SourceAnchor;
                     dagItems.NodeItem.TargetAnchor = node.TargetAnchor;
                     dagItems.NodeItem.NodeInstance = node;
-
+                    // TODO node id update, NodeId 는 반드시 있어야 한다. 이거 nullable 하는 거에 대해서 생각해보자.
+                    node.Id = dagItems.NodeItem.NodeId!.Value;
                     return node;
                 }
             }
