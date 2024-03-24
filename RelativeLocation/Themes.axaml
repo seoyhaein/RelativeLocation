@@ -1,35 +1,9 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    x:CompileBindings="True">
-    <Design.PreviewWith>
-        <Border Padding="20">
-            <Canvas Width="200" Height="200" Background="{DynamicResource SmallGridLinesBrush}" />
-        </Border>
-    </Design.PreviewWith>
-    <!-- Add Resources Here -->
-    <!--일단 추가적으로 생각해보자. 사각형 안에 사각형을 넣는 것도 생각을 해보자.-->
-    <!-- TODO Color, Brush 등을 나눠서 정리하자.-->
-    <!-- TODO 일단 리소스를 나눠서 놓는 것은 추후에 진행하도록 한다. -->
-    <!-- TODO Dark 기준으로 작성되었다.-->
-    <!-- TODO 이름들도 정리하자.-->
-    <!-- Color -->
-    <Color x:Key="ForegroundColor">Black</Color>
-    <Color x:Key="Node.BackgroundColor">#2D2D30</Color>
-    <Color x:Key="NodifyEditor.SelectionRectangleColor">DodgerBlue</Color>
-    
-    <!-- SolidColorBrush -->
-    <SolidColorBrush x:Key="Node.BackgroundBrush"
-                     Color="{StaticResource Node.BackgroundColor}" />
-    <SolidColorBrush x:Key="NodifyEditor.SelectionRectangleStrokeBrush"
-                     Color="{StaticResource NodifyEditor.SelectionRectangleColor}" />
-    <SolidColorBrush x:Key="GridLinesBrush" Color="#D3D3D3" />
-    <SolidColorBrush x:Key="ForegroundBrush"
-                     Color="{StaticResource ForegroundColor}" />
-    
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <!-- VisualBrush -->
     <VisualBrush x:Key="SmallGridLinesBrush" TileMode="Tile" SourceRect="0,0,20,20" DestinationRect="0,0,20,20">
         <VisualBrush.Visual>
-            <Path Stroke="{StaticResource GridLinesBrush}" StrokeThickness="1" Data="M 0,0 L 0,20 L 20,20 L 20,0 Z" />
+            <Path Stroke="{DynamicResource GridLinesBrush}" StrokeThickness="1" Data="M 0,0 L 0,20 L 20,20 L 20,0 Z" />
         </VisualBrush.Visual>
     </VisualBrush>
 </ResourceDictionary>

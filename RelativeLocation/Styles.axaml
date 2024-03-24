@@ -1,10 +1,7 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Design.PreviewWith>
-        <Border Padding="20">
-            <!-- Add Controls for Previewer Here -->
-        </Border>
-    </Design.PreviewWith>
-
-    <!-- Add Styles Here -->
+    <StyleInclude Source="/Connector.axaml" />
+    <StyleInclude Source="/Node.axaml" />
+    <StyleInclude Source="/PendingConnection.axaml" />
+    <StyleInclude Source="/DAGlynEditor.axaml" />
 </Styles>

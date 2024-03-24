@@ -6,15 +6,12 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <MergeResourceInclude Source="/Themes.axaml" />
+                <ResourceInclude  Source="/Res.axaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
     <Application.Styles>
         <FluentTheme />
-        <StyleInclude Source="Connector.axaml" />
-        <StyleInclude Source="Node.axaml" />
-        <StyleInclude Source="PendingConnection.axaml" />
-        <StyleInclude Source="DAGlynEditor.axaml" />
+        <StyleInclude Source="/Styles.axaml" />
     </Application.Styles>
 </Application>
