@@ -46,6 +46,8 @@
 ~~- 1 차적으로 에디터에 배경 집어 넣는 것을 완성했는데, 추가적인 모양들을 넣어야 할 것 같다.~~  
 - Rider 에서 UI 보여주는 화면과 비슷하게 만들자. (시간날때, 기능상으로는 핵심 기능은 아님)
 - node 가 focus 를 가질때 ui 변경 (구별해주어야 함.)  
+- compiled binding 적용 중 (잊어버리고 있었음.)
+- https://docs.avaloniaui.net/docs/basics/data/data-binding/compiled-bindings
 
 ## 지속적으로 TODO 정리하자.  
 ## 벤치마킹
