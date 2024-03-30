@@ -35,22 +35,23 @@
 ~~- 하지만, 위의 코드는 한번 살펴보고 Bound 문제등도 한번 정검해보자. 시간날때. 일단 지우지 않고 남겨둔다.~~  
 ~~- Avalonia.Controls.Primitives 에서 https://reference.avaloniaui.net/api/Avalonia.Controls.Primitives/Thumb/BE3BA1F0~~
 ~~- 위의 코드 살펴보고, node 의 drag 를 개선하자. 현재 마우스 고속으로 움직였을때 화면 튀는 현상 발생한다.~~  
-- 여러 노드를 추가 하는 구문을 넣어야 함.    
+~~- 여러 노드를 추가 하는 구문을 넣어야 함.~~      
 ~~- 노드의 삭제~~   
 - connection 의 삭제를 넣어야 함.  
 - Connection 을 고도화 해야 함. 지금은 그냥 선만 넣어둔 형태임.  
 - 노드를 생성하기 위한 UI 를 생각하자. 메뉴에 관한 스터디 및 어떻게 구현할지 고민해야 함.    
-- 리소스 정리하자.  
+~~- 리소스 정리하자.~~    
 ~~- 1 차적으로 에디터에 배경 집어 넣는 것을 완성했는데, 추가적인 모양들을 넣어야 할 것 같다.~~  
 - Rider 에서 UI 보여주는 화면과 비슷하게 만들자. (시간날때, 기능상으로는 핵심 기능은 아님)
 - node 가 focus 를 가질때 ui 변경 (구별해주어야 함.)  
 - compiled binding 적용 중 (잊어버리고 있었음.)
 - https://docs.avaloniaui.net/docs/basics/data/data-binding/compiled-bindings
 
-## 버그
+## 1차 버그 (4월 까지 이거 정리 및 TODO 정리, 그 후에 UX 들어 간다. 대략적인 구현은 끝남.) 
 - Panning 한다음에 선을 연결 시키면 이상하게 나옴.  
 - 노드 이동시 잔상 남는 현상 해결 해야 함.  
 - 선 연결시 미세한 버그 있음.  
+- ContextMenu 처리할 때 panning 됨. 위치도 변함.
 
 ## 지속적으로 TODO 정리하자.  
 ## 벤치마킹

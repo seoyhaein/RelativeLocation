@@ -17,26 +17,39 @@
     <!--
     <controls:TemplateLayoutCanvas>
     -->
-        <!--<controls:OutConnector Canvas.Left="20" Canvas.Top="20" />
+    <!--<controls:OutConnector Canvas.Left="20" Canvas.Top="20" />
         <controls:InConnector Canvas.Left="100" Canvas.Top="100" />-->
-      <!--  
+    <!--  
         <controls:Node Location="20,20" /> 
     </controls:TemplateLayoutCanvas>
-    --><Canvas x:Name="MainCanvas">
+    -->
+    <Canvas x:Name="MainCanvas">
         <!--Canvas 수정해야 함.-->
-        
+
         <!--
         <controls:DAGlynEditor x:Name="EditorTester" Width="800" Height="450" 
                                x:DataType="controls:MainWindow" Canvas.Top="0" Canvas.Left="0" 
                                ItemsSource="{Binding ConItems}"/>
                                -->
-        
-        <controls:DAGlynEditor x:Name="EditorTester" Width="800" Height="450" 
-                               Canvas.Top="0" Canvas.Left="0" />
-        
-        <controls:Connection SourceOffset="210,72" Source="210,72" TargetOffset="210,72" Target="210,72" />
+
+        <controls:DAGlynEditor x:Name="EditorTester" Width="800" Height="450"
+                               Canvas.Top="0" Canvas.Left="0">
+            <controls:DAGlynEditor.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="파일(_F)">
+                        <!-- 하위 메뉴 아이템들 -->
+                        <MenuItem Header="_새로 만들기"  Command="{Binding $parent[controls:DAGlynEditor].AddNode}" InputGesture="Ctrl+N" HotKey="Ctrl+N" /> 
+                        <Separator />
+                        <MenuItem Header="열기(_O)" />
+                        <!-- ... 기타 메뉴 아이템들 ... -->
+                    </MenuItem>
+                </ContextMenu>
+            </controls:DAGlynEditor.ContextMenu>
+        </controls:DAGlynEditor>
+
+        <!--<controls:Connection SourceOffset="210,72" Source="210,72" TargetOffset="210,72" Target="210,72" />
         
         <Button Canvas.Left="400" Canvas.Top="400" Width="20" Height="20" Content="test" Click="Button_OnClick" />
-        <controls:EditorContextMenu Canvas.Left="250" Canvas.Top="200" Width="300" Height="300" />
+        <controls:EditorContextMenu Canvas.Left="250" Canvas.Top="200" Width="300" Height="300" />-->
     </Canvas>
 </Window>

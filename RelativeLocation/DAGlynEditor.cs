@@ -120,14 +120,14 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     public static readonly StyledProperty<Point?> SourceAnchorProperty =
         AvaloniaProperty.Register<DAGlynEditor, Point?>(nameof(SourceAnchor));
 
-    public static readonly StyledProperty<Point?> TargetAnchorProperty =
-        AvaloniaProperty.Register<DAGlynEditor, Point?>(nameof(TargetAnchor));
-
     public Point? SourceAnchor
     {
         get => GetValue(SourceAnchorProperty);
         set => SetValue(SourceAnchorProperty, value);
     }
+
+    public static readonly StyledProperty<Point?> TargetAnchorProperty =
+        AvaloniaProperty.Register<DAGlynEditor, Point?>(nameof(TargetAnchor));
 
     public Point? TargetAnchor
     {
@@ -145,6 +145,16 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         get => GetValue(IsVisiblePendingConnectionProperty);
         set => SetValue(IsVisiblePendingConnectionProperty, value);
     }
+    
+    // 추가, 일단 이렇게 하는데 그냥 속성으로도 될 듯하다.
+    public static readonly StyledProperty<Point?> ContextMenuPointProperty =
+        AvaloniaProperty.Register<DAGlynEditor, Point?>(nameof(ContextMenuPoint));
+
+    public Point? ContextMenuPoint
+    {
+        get => GetValue(ContextMenuPointProperty);
+        set => SetValue(ContextMenuPointProperty, value);
+    }
 
     #endregion
 
@@ -161,7 +171,8 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     private EventHandler<ConnectionChangedEventArgs>? _connectionChangedHandler;
 
     // TODO 이 녀석을 static 으로 해서 전역적으로 사용할지 고민.
-    private DAG dag = new DAG();
+    // 이건 외부에서 가져와야 할 경우 어떻할지 고민해야 할듯하다.
+    public DAG Dag = new DAG();
     private bool _isLoaded = true;
     private Canvas? topLayer;
     private DAGlynEditorCanvas? editorCanvas;
@@ -180,7 +191,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
 
     public DAGlynEditor()
     {
-        DataContext = dag;
+        DataContext = Dag;
         InitializeSubscriptions();
         this.Unloaded += (_, _) => this.Dispose();
     }
@@ -246,12 +257,15 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         }));
     }
 
+    // 여기서 ContextMenu 에 대한 좌표를 얻을 수 있을 듯.
     private void HandlePointerPressed(object? sender, PointerPressedEventArgs args)
     {
         if (args.GetCurrentPoint(this).Properties.IsRightButtonPressed && !DisablePanning)
         {
             args.Pointer.Capture(this);
             _previousPointerPosition = args.GetPosition(this);
+            // TODO 추가 추후 어떻게 될지 모름.
+            ContextMenuPoint = args.GetPosition(this);
             IsPanning = true;
             args.Handled = true;
         }
@@ -329,14 +343,14 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         }
 
         // 선추가하는 구문.
-        dag.AddDAGConnectionItem(args.SourceAnchor, args.SourceNodeId, args.TargetAnchor, args.TargetNodeId);
+        Dag.AddDAGConnectionItem(args.SourceAnchor, args.SourceNodeId, args.TargetAnchor, args.TargetNodeId);
         args.Handled = true;
         IsVisiblePendingConnection = false;
     }
 
     private void HandleConnectionChanged(object? sender, ConnectionChangedEventArgs args)
     {
-        foreach (var item in dag.DAGItemsSource)
+        foreach (var item in Dag.DAGItemsSource)
         {
             // node 도 변경되지만 connection 도 변경됨.
             // dag 데이터 변경은 node 나 connection 에서는 하지 않음. 명심.
@@ -402,8 +416,8 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         // TODO 현재 IsFocused 이 조건이 필요한지는 살펴봐야 함.
         if (args.Source is Node node && EditorGestures.Delete.Matches(args))
         {
-           var r = dag.DelDAGNodeItem(node.Id);
-           if (!r) Debug.WriteLine("Failed");
+            var r = Dag.DelDAGNodeItem(node.Id);
+            if (!r) Debug.WriteLine("Failed");
             args.Handled = true;
         }
     }
@@ -416,6 +430,13 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     public void Dispose()
     {
         _disposables.Dispose();
+    }
+    
+    // 외부에 바인딩해야 해야 함. 입력 파라미터는 없어야 함.
+    public void AddNode()
+    {
+        if (ContextMenuPoint is null) return;
+        Dag.AddDAGNodeItem(ContextMenuPoint);
     }
 
     #endregion

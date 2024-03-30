@@ -57,6 +57,13 @@ public partial class MainWindow : Window
     {
         //dag.AddDAGItem(new Point(600, 600), Guid.NewGuid(), DAGItemsType.RunnerNode);
     }
+    
+    
+    // TODO 일단 테스트로 넣어 둔다.
+    /*private void MenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        EditorTester.Dag.AddDAGNodeItem();
+    }*/
 }
 
 public enum ConnectorType

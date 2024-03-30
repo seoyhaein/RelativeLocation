@@ -6,6 +6,7 @@
         <entry key="RelativeLocation/App.axaml" value="RelativeLocation/RelativeLocation.csproj" />
         <entry key="RelativeLocation/Base.axaml" value="RelativeLocation/RelativeLocation.csproj" />
         <entry key="RelativeLocation/Brushes.axaml" value="RelativeLocation/RelativeLocation.csproj" />
+        <entry key="RelativeLocation/Color.axaml" value="RelativeLocation/RelativeLocation.csproj" />
         <entry key="RelativeLocation/Connector.axaml" value="RelativeLocation/RelativeLocation.csproj" />
         <entry key="RelativeLocation/DAGlynEditor.axaml" value="RelativeLocation/RelativeLocation.csproj" />
         <entry key="RelativeLocation/Dark.axaml" value="RelativeLocation/RelativeLocation.csproj" />
@@ -14,6 +15,7 @@
         <entry key="RelativeLocation/Node.axaml" value="RelativeLocation/RelativeLocation.csproj" />
         <entry key="RelativeLocation/PendingConnection.axaml" value="RelativeLocation/RelativeLocation.csproj" />
         <entry key="RelativeLocation/Res.axaml" value="RelativeLocation/RelativeLocation.csproj" />
+        <entry key="RelativeLocation/Styles.axaml" value="RelativeLocation/RelativeLocation.csproj" />
         <entry key="RelativeLocation/Themes.axaml" value="RelativeLocation/RelativeLocation.csproj" />
       </map>
     </option>
