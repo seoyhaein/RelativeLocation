@@ -1,0 +1,71 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="RelativeLocation.EditorContextMenu"
+             xmlns:controls="using:RelativeLocation"
+             x:CompileBindings="True"
+             x:DataType="controls:EditorContextMenu"
+             MinWidth="250">
+    <!-- 버그 있을 수 있음.-->
+    <!-- Background 와 BorderBrush 를 Transparent 로 하니 랜더링 안됨.-->
+    <!-- notion 정리-->
+    <!-- 참고: https://github.com/AvaloniaUI/Avalonia/blob/master/src/Avalonia.Themes.Fluent/Controls/Button.xaml-->
+    <!-- 참고: https://docs.avaloniaui.net/docs/reference/styles/style-selector-syntax-->
+    <!-- TODO 리소스 및 스타일 정리-->
+    <Border Padding="7"
+            CornerRadius="3"
+            Background="{DynamicResource Node.BackgroundBrush}"
+            BorderBrush="{DynamicResource Editor.SelectionRectangleStrokeBrush}"
+            BorderThickness="2"
+            IsVisible="True">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <ItemsControl x:Name="MyItemsControl" Grid.Row="1" ItemsSource="{Binding ContextMenuSource}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <!--Command, CommandParameter 생략 함.-->
+                        <!--default settings-->
+                        <Button Background="Transparent"
+                                BorderBrush="Transparent"
+                                BorderThickness="1"
+                                Content="{Binding}"
+                                CornerRadius="3"
+                                Foreground="Black"
+                                HorizontalAlignment="Stretch"
+                                Padding="3">
+                            <Button.Styles>
+                                <!-- 버튼의 컨트롤 템플릿 정의 -->
+                                <Style Selector="Button">
+                                    <Setter Property="Template">
+                                        <ControlTemplate>
+                                            <Border x:Name="PART_Border"
+                                                    Background="{TemplateBinding Background}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    CornerRadius="{TemplateBinding CornerRadius}"
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter Content="{TemplateBinding Content}"
+                                                                  Focusable="{TemplateBinding Foreground}"
+                                                                  HorizontalAlignment="{TemplateBinding HorizontalAlignment}" />
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter>
+                                </Style>
+                                <!-- 버튼에 마우스를 올렸을 때의 스타일 -->
+                                <Style Selector="Button:pointerover /template/ Border#PART_Border">
+                                    <Setter Property="BorderBrush" Value="Yellow" />
+                                    <Setter Property="Cursor" Value="Hand" />
+                                </Style>
+                            </Button.Styles>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+    </Border>
+</UserControl>
