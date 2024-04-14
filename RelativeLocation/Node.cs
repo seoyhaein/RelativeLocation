@@ -173,7 +173,7 @@ public class Node : BaseNode
         Point? oldTargetAnchor = TargetAnchor;
 
         (SourceAnchor, TargetAnchor) = FindAnchors(_temporaryNewPosition);
-        // 추가
+        // TODO 이렇게 event 에 또 event 를 계속 보내는 것 생각해보자.
         RaiseConnectionChangedEvent(_id, this.Location, SourceAnchor, oldSourceAnchor, TargetAnchor, oldTargetAnchor,
             DAGItemsType.RunnerNode);
 

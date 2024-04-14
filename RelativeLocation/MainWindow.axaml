@@ -34,17 +34,17 @@
 
         <controls:DAGlynEditor x:Name="EditorTester" Width="800" Height="450"
                                Canvas.Top="0" Canvas.Left="0">
-            <controls:DAGlynEditor.ContextMenu>
+            <!--<controls:DAGlynEditor.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="파일(_F)">
-                        <!-- 하위 메뉴 아이템들 -->
+                        ~1~ 하위 메뉴 아이템들 @1@
                         <MenuItem Header="_새로 만들기"  Command="{Binding $parent[controls:DAGlynEditor].AddNode}" InputGesture="Ctrl+N" HotKey="Ctrl+N" /> 
                         <Separator />
                         <MenuItem Header="열기(_O)" />
-                        <!-- ... 기타 메뉴 아이템들 ... -->
+                        ~1~ ... 기타 메뉴 아이템들 ... @1@
                     </MenuItem>
                 </ContextMenu>
-            </controls:DAGlynEditor.ContextMenu>
+            </controls:DAGlynEditor.ContextMenu>-->
         </controls:DAGlynEditor>
 
         <!--<controls:Connection SourceOffset="210,72" Source="210,72" TargetOffset="210,72" Target="210,72" />

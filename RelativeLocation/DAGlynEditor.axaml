@@ -25,7 +25,8 @@
                 <!-- RelativeSource 사용하는 것보다 성능상 이득이 있을 듯하다.-->
                 <controls:PendingConnection SourceAnchor="{Binding $parent[controls:DAGlynEditor].SourceAnchor}"
                                             TargetAnchor="{Binding $parent[controls:DAGlynEditor].TargetAnchor}"
-                                            IsVisible="{Binding $parent[controls:DAGlynEditor].IsVisiblePendingConnection}" />
+                                            IsVisible="{Binding $parent[controls:DAGlynEditor].IsVisiblePendingConnection}" 
+                                            ViewportLocation="{Binding $parent[controls:DAGlynEditor].ViewportLocation}" />
             </DataTemplate>
         </Setter>
         <Setter Property="Template">

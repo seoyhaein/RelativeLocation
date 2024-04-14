@@ -5,7 +5,7 @@ using Avalonia.Markup.Xaml;
 
 namespace RelativeLocation;
 
-public partial class EditorContextMenu : UserControl
+public partial class EditorContextMenu1 : UserControl
 {
     #region Fields
 
@@ -16,7 +16,7 @@ public partial class EditorContextMenu : UserControl
     
     #region Constructors
 
-    public EditorContextMenu()
+    public EditorContextMenu1()
     {
         InitializeComponent();
         DataContext = this;

@@ -110,6 +110,18 @@ namespace RelativeLocation
             get => GetValue(SetFillAndStrokeProperty);
             set => SetValue(SetFillAndStrokeProperty, value);
         }
+        
+        // 추가 panning 관련
+
+        public static readonly StyledProperty<Point> ViewportLocationProperty =
+            AvaloniaProperty.Register<DAGlynEditorCanvas, Point>(
+                nameof(ViewportLocation), Constants.ZeroPoint);
+
+        public Point ViewportLocation
+        {
+            get => GetValue(ViewportLocationProperty);
+            set => SetValue(ViewportLocationProperty, value);
+        }
 
         #endregion
 
@@ -124,6 +136,11 @@ namespace RelativeLocation
         public PendingConnection()
         {
             _disposable = SetFillAndStrokeProperty.Changed.Subscribe(SetFillAndStrokePropertyChanged);
+            
+            // panning 관련
+            RenderTransform = new TranslateTransform();
+            _disposable = ViewportLocationProperty.Changed.Subscribe(OnViewportLocationChanged);
+            
             // TODO axaml 에서 사용시 Dispose 하는 방법에 대해서 생각해보기.
             this.Unloaded += (_, _) => this.Dispose();
         }
@@ -139,6 +156,18 @@ namespace RelativeLocation
                 var brush = value.GetNewValue<IBrush?>(); // value.NewValue 대신 GetNewValue<IBrush?>() 사용
                 connection.Fill = brush;
                 connection.Stroke = brush;
+            }
+        }
+        
+        private void OnViewportLocationChanged(AvaloniaPropertyChangedEventArgs e)
+        {
+            if (e.NewValue is Point pointValue)
+            {
+                if (RenderTransform is TranslateTransform translateTransform)
+                {
+                    translateTransform.X = -pointValue.X;
+                    translateTransform.Y = -pointValue.Y;
+                }
             }
         }
 

@@ -38,9 +38,8 @@ public sealed class SourceConnector : Connector
     #endregion
 
     #region Fields
-
-    // Connector 밖으로 한번이라도 나가면 true 가 된다.
-    private bool _outSideOutConnector;
+    
+    private Connector? elementUnderPointer;
 
     #endregion
 
@@ -48,131 +47,50 @@ public sealed class SourceConnector : Connector
 
     protected override void HandlePointerPressed(object? sender, PointerPressedEventArgs args)
     {
-        if (!args.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-            return;
-
-        if (sender == null) return;
-
-        Focus();
-        args.Pointer.Capture(this);
-
-        if (this.Equals(args.Pointer.Captured))
+        if (args.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
         {
+            args.Pointer.Capture(this);
             Debug.Print("Pointer Pressed");
-            this.PreviousConnector = this;
-            this.IsPointerPressed = true; // 마우스 눌림 상태 설정
-            args.Handled = true; // 이벤트 전파를 막음.
-            var parent = this.GetParentVisualByName<Canvas>("PART_TopLayer");
-            if (parent == null) return;
+            PreviousConnector = this;
+            IsPointerPressed = true;
+            args.Handled = true;
             RaiseConnectionStartEvent(this, Anchor);
         }
     }
     
+    // Panning 하면 좌표계가 달라짐.
     protected override void HandlePointerMoved(object? sender, PointerEventArgs args)
     {
-        if (sender == null || !this.IsPointerPressed || this.PreviousConnector == null) return;
-
+        if (sender == null || !IsPointerPressed || PreviousConnector == null) return;
+        
         // PART_TopLayer 는 DAGlynEditor.axaml 에 있다. 이녀석이 없으면 기능을 하지 않는다.
-        var parent = this.GetParentVisualByName<Canvas>("PART_TopLayer");
+        // 이거 나중에 바인딩으로 연결하자.
+        //var parent = this.GetParentVisualByName<Canvas>("PART_TopLayer");
+        // TODO 이벤트 올때 마다 계산하게 하면 좀 힘들 듯. 이거 계선 해야 함.
+        var parent = this.GetParentVisualByName<Canvas>("PART_ItemsHost");
         if (parent == null) return;
         var currentPosition = args.GetPosition(parent);
 
         // 마우스 이동중 새로운 Connector 에 들어가면 null 이 아님.
-        var elementUnderPointer = parent.GetControlUnderPointer<Connector>(currentPosition);
-
-        // 한번이라도 OutConnector 를 나가면.
-
-        if (elementUnderPointer == null && this.IsPointerPressed)
-        {
-            // 1. 정상적인 Moved
-            //TODO 여기서 Captured 와 비교할 필요가 있을까? 일단 해줌. 아래 조건문을 할 필요가 없을 듯 하다.
-            if (this.PreviousConnector.Equals(args.Pointer.Captured) && this.Equals(args.Pointer.Captured))
-            {
-                _outSideOutConnector = true;
-                // TODO 여기 버그 있음. 좌표계
-                RaiseConnectionDragEvent(this, Anchor, (Vector)currentPosition);
-                Debug.Print("정상 Moved");
-            }
-        }
-
-        // 2` 자신으로 돌아온 경우
-        // OutConnector 내에서의 이동도 생각해야한다.
-        if (elementUnderPointer != null && elementUnderPointer.Equals(this.PreviousConnector) && this.IsPointerPressed)
-        {
-            if (_outSideOutConnector && this.PreviousConnector.Equals(args.Pointer.Captured))
-            {
-                RaiseConnectionDragEvent(this, Anchor, (Vector)currentPosition);
-                Debug.Print("그냥 외곽에 있다가 다시 들어간 경우");
-            }
-
-            if (!_outSideOutConnector && this.PreviousConnector.Equals(args.Pointer.Captured))
-            {
-                RaiseConnectionDragEvent(this, Anchor, (Vector)currentPosition);
-                Debug.Print("OutConnector 내에서의 마우스 이동.");
-            }
-        }
-
-        // 2`` 다른 Connector로 들어온 경우
-        if (elementUnderPointer != null && !elementUnderPointer.Equals(this.PreviousConnector) && this.IsPointerPressed)
-        {
-            //if (this.PreviousConnector.Equals(args.Pointer.Captured))
-            this.PreviousConnector = elementUnderPointer;
-            RaiseConnectionDragEvent(this, Anchor, (Vector)currentPosition);
-            Debug.Print("다른 Connector로 들어온 경우");
-        }
-
-        // 2``` 다른 Connector 에 들어 갔다가 다시 자신으로 돌아온 경우
-        if (elementUnderPointer != null && elementUnderPointer.Equals(this.PreviousConnector) && this.IsPointerPressed)
-        {
-            if (!this.PreviousConnector.Equals(args.Pointer.Captured))
-            {
-                RaiseConnectionDragEvent(this, Anchor, (Vector)currentPosition);
-                Debug.Print("다른 Connector 에 들어 갔다가 다시 자신으로 돌아온 경우");
-            }
-        }
-
+        // 계속 업데이트 됨.
+        // TODO 이 메서드 최적화 시킬 필요 있을 듯.
+        elementUnderPointer = parent.GetControlUnderPointer<Connector>(currentPosition);
+        RaiseConnectionDragEvent(this, Anchor, (Vector)currentPosition);
         args.Handled = true;
     }
-    
+
+    // 현재 좀 단순화 했음.
     protected override void HandlePointerReleased(object? sender, PointerReleasedEventArgs args)
     {
-        if (sender == null) return;
-        // TODO PreviousConnector 검사 필요한지 생각해보자.
-        // 두가지를 생각해야 한다. InConnector 에서 Release 되었는지 아닌지.
-        if (this.Equals(args.Pointer.Captured) && this.IsPointerPressed)
-        {
-            // TODO 이 코드가 여기 꼭 있어야 하는지 생각하자.
-            // PART_TopLayer 는 DAGlynEditor.axaml 에 있다. 이녀석이 없으면 기능을 하지 않는다.
-            var parent = this.GetParentVisualByName<Canvas>("PART_TopLayer");
-            if (parent == null) return;
-
-            var currentPosition = args.GetPosition(parent);
-            // 마우스 이동중 새로운 Connector 에 들어가면 null 이 아님.
-            var elementUnderPointer = parent.GetControlUnderPointer<Connector>(currentPosition);
-            if (elementUnderPointer is TargetConnector okConnector)
-            {
-                okConnector.Focus();
-                Debug.Print(" InConnector Pointer Released");
-                this.IsPointerPressed = false; // 마우스 눌림 상태 해제
-                args.Pointer.Capture(null);
-                args.Handled = true;
-                PreviousConnector = null;
-                _outSideOutConnector = false;
-                // TODO InNodeId, OutNodeId 이름 수정 후 그 후에 이것들이 필요한지 생각한다.
-                RaiseConnectionCompletedEvent(okConnector, Anchor, NodeId, okConnector.Anchor, okConnector.NodeId);
-            }
-            else
-            {
-                Debug.Print("Not InConnectorPointer Released");
-                this.IsPointerPressed = false; // 마우스 눌림 상태 해제
-                args.Pointer.Capture(null);
-                args.Handled = true;
-                PreviousConnector = null;
-                _outSideOutConnector = false;
-                // TODO 일단  이부분도 생각해봐야 한다.
-                RaiseConnectionCompletedEvent(null, null, null, null, null);
-            }
-        }
+        IsPointerPressed = false; // 마우스 눌림 상태 해제
+        args.Pointer.Capture(null);
+        args.Handled = true;
+        PreviousConnector = null;
+        
+        if (elementUnderPointer is TargetConnector okConnector)
+            RaiseConnectionCompletedEvent(okConnector, Anchor, NodeId, okConnector.Anchor, okConnector.NodeId);
+        else
+            RaiseConnectionCompletedEvent(null, null, null, null, null);
     }
 
     #endregion

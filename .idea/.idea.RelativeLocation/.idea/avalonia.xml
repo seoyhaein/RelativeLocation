@@ -11,6 +11,7 @@
         <entry key="RelativeLocation/DAGlynEditor.axaml" value="RelativeLocation/RelativeLocation.csproj" />
         <entry key="RelativeLocation/Dark.axaml" value="RelativeLocation/RelativeLocation.csproj" />
         <entry key="RelativeLocation/EditorContextMenu.axaml" value="RelativeLocation/RelativeLocation.csproj" />
+        <entry key="RelativeLocation/EditorMenuItem.axaml" value="RelativeLocation/RelativeLocation.csproj" />
         <entry key="RelativeLocation/MainWindow.axaml" value="RelativeLocation/RelativeLocation.csproj" />
         <entry key="RelativeLocation/Node.axaml" value="RelativeLocation/RelativeLocation.csproj" />
         <entry key="RelativeLocation/PendingConnection.axaml" value="RelativeLocation/RelativeLocation.csproj" />

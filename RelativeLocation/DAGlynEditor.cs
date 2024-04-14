@@ -95,8 +95,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         get => _isPanning;
         protected internal set => SetAndRaise(IsPanningProperty, ref _isPanning, value);
     }
-
-    // 추가
+    
     public static readonly StyledProperty<DataTemplate?> PendingConnectionTemplateProperty =
         AvaloniaProperty.Register<DAGlynEditor, DataTemplate?>(
             nameof(PendingConnectionTemplate));
@@ -134,7 +133,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         get => GetValue(TargetAnchorProperty);
         set => SetValue(TargetAnchorProperty, value);
     }
-
+    
     // PendingConnection visible 설정에 사용
     public static readonly StyledProperty<bool> IsVisiblePendingConnectionProperty =
         AvaloniaProperty.Register<DAGlynEditor, bool>(
@@ -146,7 +145,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         set => SetValue(IsVisiblePendingConnectionProperty, value);
     }
     
-    // 추가, 일단 이렇게 하는데 그냥 속성으로도 될 듯하다.
+    // TODO 필요 없을 듯 향후 코드 정리 시 지운다.
     public static readonly StyledProperty<Point?> ContextMenuPointProperty =
         AvaloniaProperty.Register<DAGlynEditor, Point?>(nameof(ContextMenuPoint));
 
@@ -166,24 +165,25 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     private EventHandler<PendingConnectionEventArgs>? _connectionStartedHandler;
     private EventHandler<PendingConnectionEventArgs>? _connectionDragHandler;
     private EventHandler<PendingConnectionEventArgs>? _connectionCompleteHandler;
-
     // 이건 node 에서 올라오는 event
     private EventHandler<ConnectionChangedEventArgs>? _connectionChangedHandler;
-
-    // TODO 이 녀석을 static 으로 해서 전역적으로 사용할지 고민.
-    // 이건 외부에서 가져와야 할 경우 어떻할지 고민해야 할듯하다.
+    // contextMenu 에서 올라오는 event
+    private EventHandler<EditorContextMenuEventArgs>? _editorContextMenuChangedHandler;
+    
+    private bool _IsRightBtnClicked;
     public DAG Dag = new DAG();
+    
+    // TODO 아래 변수들 코드 정리시 지운다.
     private bool _isLoaded = true;
     private Canvas? topLayer;
     private DAGlynEditorCanvas? editorCanvas;
 
     // Panning 관련 포인터 위치 값 
     private Point _previousPointerPosition;
-
     private Point _currentPointerPosition;
-    //private bool _isPanning;
-    // 일단 이렇게 하고 이거 나중에 static constructor 에 넣자. 
-    //private PendingConnection? _pendingConnection = new PendingConnection();
+    
+    // TODO 일단 이렇게 남겨 두는데, Menu 디자인시 수정 해야 함.
+    private EditorContextFlyout _contextMenu;
 
     #endregion
 
@@ -193,6 +193,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     {
         DataContext = Dag;
         InitializeSubscriptions();
+        _contextMenu = new EditorContextFlyout(this);
         this.Unloaded += (_, _) => this.Dispose();
     }
 
@@ -206,6 +207,7 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         _connectionDragHandler = HandleConnectionDrag;
         _connectionCompleteHandler = HandleConnectionComplete;
         _connectionChangedHandler = HandleConnectionChanged;
+        _editorContextMenuChangedHandler = HandleEditorContextMenuChanged;
 
         Observable.FromEventPattern<PointerPressedEventArgs>(
                 h => this.PointerPressed += h,
@@ -244,6 +246,8 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         AddHandler(Connector.PendingConnectionCompletedEvent, _connectionCompleteHandler);
         // Connection Changed
         AddHandler(Node.ConnectionChangedEvent, _connectionChangedHandler);
+        // editorContextMenu Changed
+        AddHandler(EditorContextMenu.EditorContextMenuChangedEvent, _editorContextMenuChangedHandler);
 
         // 이벤트 핸들러 해제
         _disposables.Add(Disposable.Create(() =>
@@ -253,46 +257,53 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
             RemoveHandler(Connector.PendingConnectionDragEvent, _connectionDragHandler);
             RemoveHandler(Connector.PendingConnectionCompletedEvent, _connectionCompleteHandler);
             // Connection Changed
-            AddHandler(Node.ConnectionChangedEvent, _connectionChangedHandler);
+            RemoveHandler(Node.ConnectionChangedEvent, _connectionChangedHandler);
+            RemoveHandler(EditorContextMenu.EditorContextMenuChangedEvent, _editorContextMenuChangedHandler);
         }));
     }
-
-    // 여기서 ContextMenu 에 대한 좌표를 얻을 수 있을 듯.
+    
     private void HandlePointerPressed(object? sender, PointerPressedEventArgs args)
     {
         if (args.GetCurrentPoint(this).Properties.IsRightButtonPressed && !DisablePanning)
         {
             args.Pointer.Capture(this);
-            _previousPointerPosition = args.GetPosition(this);
-            // TODO 추가 추후 어떻게 될지 모름.
             ContextMenuPoint = args.GetPosition(this);
-            IsPanning = true;
+            _previousPointerPosition = args.GetPosition(this);
+            _IsRightBtnClicked = true;
             args.Handled = true;
         }
     }
 
     private void HandlePointerMoved(object? sender, PointerEventArgs args)
     {
-        if (IsPanning)
+        if (_IsRightBtnClicked)
         {
             _currentPointerPosition = args.GetPosition(this);
             ViewportLocation -=
                 (_currentPointerPosition - _previousPointerPosition) / 1; // Adjust division based on actual zoom level
             _previousPointerPosition = _currentPointerPosition;
+            IsPanning = true;
             args.Handled = true;
         }
     }
 
     private void HandlePointerReleased(object? sender, PointerReleasedEventArgs args)
     {
-        // TODO equal 쓸까??
-        if (!IsPanning || !this.Equals(args.Pointer.Captured)) return;
-        /*if (IsPanning && args.Pointer.Captured == this)
-        {*/
-        args.Pointer.Capture(null);
-        IsPanning = false;
-        args.Handled = true;
-        //}
+        if (_IsRightBtnClicked)
+        {
+            args.Handled = true;
+            if (IsPanning)
+            {
+                IsPanning = false;
+                if (this.Equals(args.Pointer.Captured))
+                    args.Pointer.Capture(null);
+                _IsRightBtnClicked = false;
+                return; 
+            }
+            
+            _contextMenu.ShowAt(this, true);
+            _IsRightBtnClicked = false;
+        }
     }
 
     private void HandleConnectionStarted(object? sender, PendingConnectionEventArgs args)
@@ -301,9 +312,10 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
         {
             IsVisiblePendingConnection = true;
 
-            if (args.Anchor.HasValue)
+            if (args.SourceAnchor.HasValue)
             {
-                SourceAnchor = args.Anchor.Value;
+                SourceAnchor = args.SourceAnchor.Value;
+                // TODO 아래 코드 살펴봐야 함.
                 if (args.Offset.HasValue)
                     TargetAnchor = new Point(SourceAnchor.Value.X + args.Offset.Value.X,
                         SourceAnchor.Value.Y + args.Offset.Value.Y);
@@ -335,19 +347,20 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
 
     private void HandleConnectionComplete(object? sender, PendingConnectionEventArgs args)
     {
-        if (args.SourceConnector == null || args.SourceAnchor == null || args.TargetAnchor == null)
+        args.Handled = true;
+        if (args.ConnectedConnector == null || args.SourceAnchor == null || args.TargetAnchor == null)
         {
-            args.Handled = true;
             IsVisiblePendingConnection = false;
             return;
         }
-
+        Debug.WriteLine("Editor connection end");
+        Debug.WriteLine(args.SourceAnchor.Value);
         // 선추가하는 구문.
         Dag.AddDAGConnectionItem(args.SourceAnchor, args.SourceNodeId, args.TargetAnchor, args.TargetNodeId);
-        args.Handled = true;
         IsVisiblePendingConnection = false;
     }
 
+    // TODO 이거 이렇게 하는게 맞는지 살펴보자. 좀더 효율적인 반법이 있을 것 같다.
     private void HandleConnectionChanged(object? sender, ConnectionChangedEventArgs args)
     {
         foreach (var item in Dag.DAGItemsSource)
@@ -384,27 +397,28 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
 
         args.Handled = true;
     }
-
-    // TODO 이건 일단 어떻할지 생각해본다.
+    
+    // TODO 소스 정리 시 삭제 할 것임.
+    private void HandleEditorContextMenuChanged(object? sender, EditorContextMenuEventArgs args)
+    {
+        /*_contextMenuOpend = args.IsOpened;
+        _contextMenuClosed = args.IsClosed;*/
+    }
+    // TODO 코드 정리 할때 이거 필요 없어짐. 삭제, 다만 backup 용으로 기록해 둬야 함.
     private void HandleLoaded(object? sender, RoutedEventArgs args)
     {
         if (_isLoaded)
         {
             editorCanvas = this.GetChildControlByName<DAGlynEditorCanvas>("PART_ItemsHost");
-            if (editorCanvas == null)
-                throw new InvalidOperationException("PART_ItemsHost cannot be found in the template.");
+            bool isMatched = Extension.IsCanvasMatched(topLayer, editorCanvas);
 
-            // 두 컨트롤이 모두 찾아진 후 로직 수행
-            if (topLayer != null && editorCanvas != null)
+            if (!isMatched)
             {
-                bool isMatch = topLayer.IsCoordinateSystemMatch(editorCanvas);
-                if (!isMatch)
-                {
-                    Extension.WriteErrorsToFile(
-                        "The coordinate systems do not match, causing rendering issues in the application.");
-                }
+                Extension.WriteErrorsToFile(
+                    "The coordinate systems do not match, causing rendering issues in the application.");
+                throw new InvalidOperationException("The coordinate systems do not match, causing rendering issues in the application.");
             }
-
+            
             // 한번만 실행되게 만드는 flag
             _isLoaded = false;
         }
@@ -431,13 +445,15 @@ public class DAGlynEditor : SelectingItemsControl, IDisposable
     {
         _disposables.Dispose();
     }
-    
+
     // 외부에 바인딩해야 해야 함. 입력 파라미터는 없어야 함.
     public void AddNode()
     {
         if (ContextMenuPoint is null) return;
         Dag.AddDAGNodeItem(ContextMenuPoint);
     }
+
+    // ContextMenu 말고 MenuFlyout 으로 해보자.
 
     #endregion
 

@@ -21,7 +21,7 @@
 		        Value="False" />
 		<Setter Property="StrokeThickness"
                 Value="3" />
-		<!-- 화살표 적용시 아래 부분 짤림. 그래서 아래와 오른쪽 패딩 줌.-->
+		<!-- TODO 화면에 화살표 적용시 아래 부분 짤림. 이 부분 살펴보자.-->
 		<Setter Property="Padding"
                 Value="0,0,5,5" />
 		<Setter Property="EnableSnapping"
@@ -39,7 +39,7 @@
 					                     StrokeThickness="{TemplateBinding StrokeThickness}"
 					                     Fill="{TemplateBinding SetFillAndStroke}"
 					/>
-
+					<!-- TODO 구현 필요 -->
 					<!--
                         <Ellipse Fill="Green" Width="14" Height="14" StrokeThickness="2" 
                                  Canvas.Left="{Binding SourceAnchor.X, RelativeSource={RelativeSource TemplatedParent}}" 

@@ -1,10 +1,14 @@
 <Styles xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:RelativeLocation">
     <Design.PreviewWith>
         <Border Padding="20">
             <!-- Add Controls for Previewer Here -->
         </Border>
     </Design.PreviewWith>
 
-    <!-- Add Styles Here -->
+    <!--<Style Selector="controls|EditorMenuItem">
+        <Setter Property="Background" Value="Yellow"/>
+        <Setter Property="Foreground" Value="Blue"/>
+    </Style>-->
 </Styles>

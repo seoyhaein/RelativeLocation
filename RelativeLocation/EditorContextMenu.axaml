@@ -1,10 +1,14 @@
 <Styles xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:RelativeLocation"
+        x:CompileBindings="True">
     <Design.PreviewWith>
         <Border Padding="20">
             <!-- Add Controls for Previewer Here -->
         </Border>
     </Design.PreviewWith>
-
-    <!-- Add Styles Here -->
+    <!-- 이거 테스트 해보자. -->
+    <!-- 여기서, 속성들에 대한 것들을 재정의 하는 것이 가능한지 살펴본다. -->
+    <Style Selector="controls|EditorContextMenu">
+    </Style>
 </Styles>

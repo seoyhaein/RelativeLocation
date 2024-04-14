@@ -4,4 +4,5 @@
     <StyleInclude Source="/Node.axaml" />
     <StyleInclude Source="/PendingConnection.axaml" />
     <StyleInclude Source="/DAGlynEditor.axaml" />
+    <!--<StyleInclude Source="/EditorMenuItem.axaml" /> -->
 </Styles>

@@ -27,9 +27,10 @@ public static class Extension
         {
             if (current is T target)
                 return target;
-            
+
             current = current.GetVisualParent() as Control;
         }
+
         return default;
     }
 
@@ -41,9 +42,10 @@ public static class Extension
         {
             if (current is T target)
                 return target;
-            
+
             current = current.GetVisualParent();
         }
+
         return default;
     }
 
@@ -56,9 +58,10 @@ public static class Extension
         {
             if (current is T target && target.Name == name)
                 return target;
-            
+
             current = current.GetVisualParent();
         }
+
         return default;
     }
 
@@ -72,9 +75,10 @@ public static class Extension
             if (visual.Name == name && visual is T foundElement)
                 return foundElement;
         }
+
         return null;
     }
-    
+
     // TranslatePoint 사용 대신 TransformToVisual 와 Transform 를 썼다.
     // TranslatePoint 를 사용해서 코드를 줄일 수 있는데 일단 원리를 알고자 풀어썻다.
     // TranslatePoint 에서 내부적으로 TransformToVisual 와 Transform 를 사용한다.
@@ -98,6 +102,7 @@ public static class Extension
                 }
             }
         }
+
         return null;
     }
 
@@ -121,7 +126,7 @@ public static class Extension
         return null;
     }
 
-    // 서로 다른 Canvas 의 좌표계가 일치하는지 확인하는 간단한 메서드
+    // TODO 이름 수정할 필요 있을 듯. 너무 김.
     public static bool IsCoordinateSystemMatch(this Visual reference, Visual target)
     {
         _ = reference ?? throw new ArgumentNullException(nameof(reference));
@@ -133,8 +138,21 @@ public static class Extension
             // 단위 행렬인지 확인
             return matrix.Value.IsIdentity;
         }
+
         // 변환 행렬이 없는 경우, 좌표계가 일치하지 않음을 의미
         return false;
+    }
+
+    // 전역적으로 좌표계가 일치하는지 찾는 메서드
+    // 특화 되어 있음.
+    // TODO 이거 필요 없을 수도 있음.
+    public static bool IsCanvasMatched(Canvas? sourceCanvas, Canvas? targetCanvas)
+    {
+        _ = sourceCanvas ?? throw new ArgumentNullException(nameof(sourceCanvas));
+        _ = targetCanvas ?? throw new ArgumentNullException(nameof(targetCanvas));
+
+        bool isMatch = sourceCanvas.IsCoordinateSystemMatch(targetCanvas);
+        return isMatch;
     }
 
     #endregion
@@ -173,11 +191,11 @@ public static class Extension
     {
         if (!Directory.Exists(logDirectory))
             Directory.CreateDirectory(logDirectory);
-        
+
         Process currentProcess = Process.GetCurrentProcess();
         long memoryUsage = currentProcess.WorkingSet64; // 메모리 사용량
         TimeSpan cpuTime = currentProcess.TotalProcessorTime; // CPU 사용 시간
-        
+
         // 성능 정보 로깅
         LogWriteToFile(true, "{0} - Memory Usage: {1} bytes, CPU Time: {2} ms", message, memoryUsage,
             cpuTime.TotalMilliseconds);
@@ -196,7 +214,7 @@ public static class Extension
             Debug.WriteLine("Log file write error: " + ex.Message);
         }
     }
-    
+
     public static void WriteErrorsToFile(string message)
     {
         try
